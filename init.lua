@@ -17,4 +17,12 @@ require("vim-settings")
 require("lazy").setup("plugins")
 
 --display numbers 
-vim.cmd("set number") 
+vim.cmd("set number")
+
+-- Allow for local configs
+local project_config = vim.fn.getcwd() .. "/nvim/init.lua"
+if vim.fn.filereadable(project_config) == 1 then
+  -- Load the project-specific config if it exists
+  dofile(project_config)
+end
+
