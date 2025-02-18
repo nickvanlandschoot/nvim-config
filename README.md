@@ -30,13 +30,13 @@ This is my default nvim config that contains various plugins and default setting
 - <Space>+fg toggles telescoge global grep
 
 ### debugging
-- continue <F1>
-- step_into <F2>
-- step_over <F3> 
-- step_out <F4>
-- step_back <F5> 
-- breakpoint <F6>
-- restart <F13>
+- continue '<F1>'
+- step_into '<F2>'
+- step_over '<F3>'
+- step_out '<F4>'
+- step_back '<F5>'
+- breakpoint '<F6>'
+- restart '<F13>'
 
 ## Configured LSPs
 - lua_ls (Lua)
@@ -47,4 +47,4 @@ This is my default nvim config that contains various plugins and default setting
 
 ## Credits
 
-loosely based on this [https://www.youtube.com/playlist?list=PLsz00TDipIffreIaUNk64KxTIkQaGguqn](guide) by [https://www.youtube.com/@typecraft_dev](typecraft) on setting up nvim.
+Some parts of config loosely based on this [https://www.youtube.com/playlist?list=PLsz00TDipIffreIaUNk64KxTIkQaGguqn](guide) by [https://www.youtube.com/@typecraft_dev](typecraft) on setting up nvim.
