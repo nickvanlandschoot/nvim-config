@@ -17,13 +17,26 @@ This is my default nvim config that contains various plugins and default setting
 - treesitter (syntax highlighting)
 - lualine (status bar)
 - blink (autocomplete)
+- dap (debugging)
 
-## Vim Settings & Key Bindings (Default)
-
+## Vim Settings
 - tab width & indentation is two spaces
+
+## Keybindings
+
+### general
 - <Space>+e toggles nvimtree 
 - <Space>+ff toggles telescope file search
 - <Space>+fg toggles telescoge global grep
+
+### debugging
+- continue <F1>
+- step_into <F2>
+- step_over <F3> 
+- step_out <F4>
+- step_back <F5> 
+- breakpoint <F6>
+- restart <F13>
 
 ## Configured LSPs
 - lua_ls (Lua)
