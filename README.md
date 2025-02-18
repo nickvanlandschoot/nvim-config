@@ -28,6 +28,7 @@ This is my default nvim config that contains various plugins and default setting
 - <Space>+e toggles nvimtree 
 - <Space>+ff toggles telescope file search
 - <Space>+fg toggles telescoge global grep
+- <Space>+d shows a floating error window when needed
 
 ### debugging
 - continue '<F1>'
