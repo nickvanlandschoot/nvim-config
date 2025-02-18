@@ -1,4 +1,4 @@
--- Install lazy.nvim if not already installed
+-- Install lazy.nvim if not alrnady installed
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -12,6 +12,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-
+--import plugins and setting
 require("vim-settings")
 require("lazy").setup("plugins")
+
+--display numbers 
+vim.cmd("set number") 
