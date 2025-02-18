@@ -21,8 +21,8 @@ return {
       -- See the full "keymap" documentation for information on defining your own keymap.
       keymap = {
 	preset = 'default',
-	['<Down>'] = { 'select_prev', 'fallback' },
-	['<Up>'] = { 'select_next', 'fallback' },
+	['<Up>'] = { 'select_prev', 'fallback' },
+	['<Down>'] = { 'select_next', 'fallback' },
 	['<S-Tab>'] = { 'accept_and_enter', 'fallback' },
 	['<Tab>'] = {'select_and_accept', 'fallback'}
       },
