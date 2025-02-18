@@ -16,6 +16,7 @@ This is my default nvim config that contains various plugins and default setting
 - telescope (searching)
 - treesitter (syntax highlighting)
 - lualine (status bar)
+- blink (autocomplete)
 
 ## Vim Settings & Key Bindings (Default)
 
@@ -23,6 +24,13 @@ This is my default nvim config that contains various plugins and default setting
 - <Space>+e toggles nvimtree 
 - <Space>+ff toggles telescope file search
 - <Space>+fg toggles telescoge global grep
+
+## Configured LSPs
+- lua_ls (Lua)
+- ts_ls (Typescript, React)
+- pyright (Python)
+- jsonls (JSON)
+- yamlls (YAML)
 
 ## Credits
 
