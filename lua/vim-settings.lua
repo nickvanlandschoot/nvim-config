@@ -11,3 +11,8 @@ vim.keymap.set("v", "y", '"+y', { noremap = true })
 
 --Map open diagnostics to shift `f`
 vim.keymap.set('n', '<leader>d', '<cmd>lua vim.diagnostic.open_float()<CR>')
+
+-- Enable Tree-sitter based folding
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldlevel = 99

@@ -30,6 +30,13 @@ This is my default nvim config that contains various plugins and default setting
 - <Space>+fg toggles telescoge global grep
 - <Space>+d shows a floating error window when needed
 
+### treesitter collapsing
+- zc collapses a fold
+- zo opens a fold
+- za toggles a fold
+- zM closes all folds
+- zR opens all folds
+
 ### debugging
 - continue '<F1>'
 - step_into '<F2>'
