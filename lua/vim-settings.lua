@@ -16,3 +16,8 @@ vim.keymap.set('n', '<leader>d', '<cmd>lua vim.diagnostic.open_float()<CR>')
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldlevel = 99
+
+-- Remap Tab in visual mode to reselect visual area after indenting
+vim.keymap.set("v", "<Tab>", ">gv", { noremap = true })
+vim.keymap.set("v", "<S-Tab>", "<gv", { noremap = true })
+

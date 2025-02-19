@@ -23,7 +23,14 @@ return {
 	preset = 'default',
 	['<Up>'] = { 'select_prev', 'fallback' },
 	['<Down>'] = { 'select_next', 'fallback' },
-	['<S-Tab>'] = {'select_and_accept', 'fallback'}
+	['<S-Tab>'] = {
+	  function(cmp)
+	    if cmp.snippet_active() then return cmp.accept()
+	    else return cmp.select_and_accept() end
+	  end,
+	  'snippet_forward',
+	  'fallback'
+	},
       },
 
       appearance = {

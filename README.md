@@ -1,4 +1,4 @@
-#NVim Config
+# NVim Config
 
 This is my default nvim config that contains various plugins and default settings. 
 
