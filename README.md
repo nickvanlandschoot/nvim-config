@@ -18,7 +18,7 @@ This is my default nvim config that contains various plugins and default setting
 - lualine (status bar)
 - blink (autocomplete)
 - dap (debugging)
-
+- Codeium (AI autocomplete)
 ## Vim Settings
 - tab width & indentation is two spaces
 
