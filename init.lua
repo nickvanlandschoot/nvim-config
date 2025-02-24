@@ -18,6 +18,7 @@ require("lazy").setup("plugins")
 
 --display numbers 
 vim.cmd("set number")
+vim.cmd("set relativenumber")
 
 -- Allow for local configs
 local project_config = vim.fn.getcwd() .. "/nvim/init.lua"

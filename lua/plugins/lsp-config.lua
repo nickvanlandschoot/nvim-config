@@ -38,6 +38,8 @@ return {
       end
 
       --Setup LSPs
+      local util = require("lspconfig.util")
+
       lspconfig.lua_ls.setup({})
       lspconfig.pyright.setup({})
       lspconfig.yamlls.setup({})
