@@ -1,32 +1,31 @@
 return {
-  -- Keep the catppuccin theme
+  -- Re-enable the catppuccin theme
   {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
-    -- Disabled to use onedark instead
-    enabled = false,
+    enabled = true, -- Enable catppuccin
     config = function()
       require("catppuccin").setup({
         flavour = "mocha",
         transparent_background = false,
       })
+      -- Set colorscheme to catppuccin
+      vim.cmd("colorscheme catppuccin")
     end,
   },
   
-  -- Add the onedark theme
+  -- Keep onedark but disable it
   {
     "navarasu/onedark.nvim",
     priority = 1000,
+    enabled = false, -- Disable onedark
     config = function()
       require("onedark").setup({
-        style = "darker", -- Choose between 'dark', 'darker', 'cool', 'deep', 'warm', 'warmer'
+        style = "dark",
         transparent = false,
         term_colors = true,
-        -- Other options you might want to customize
       })
-      -- Set colorscheme after options
-      vim.cmd("colorscheme onedark")
     end,
   },
-} 
+}

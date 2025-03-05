@@ -10,15 +10,17 @@ This is my default nvim config that contains various plugins and default setting
 
 ## Plugins 
 
+- barbar (visual tabs)
 - lazy (package manager)
 - catppuccin (for theme):
 - nvim-tree (visual sidebar)
 - telescope (searching)
 - treesitter (syntax highlighting)
 - lualine (status bar)
-- blink (autocomplete)
 - dap (debugging)
+- blink (autocomplete)
 - Codeium (AI autocomplete)
+
 ## Vim Settings
 - tab width & indentation is two spaces
 
