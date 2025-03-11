@@ -49,7 +49,7 @@ return {
 	filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
 	on_attach = function(client, bufnr)
 	  -- If using a separate formatter (like prettier), disable tsserver's formatting:
-	  client.server_capabilities.documentFormattingProvider = false
+	  client.server_capabilities.documentFormattingProvider = true 
 	  local bufopts = { noremap = true, silent = true, buffer = bufnr }
 	  vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
 	  vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)

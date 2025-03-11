@@ -71,3 +71,5 @@ vim.keymap.set("v", "<C-S-k>", function() move_visual_selection("up") end,
 vim.keymap.set("v", "<C-S-j>", function() move_visual_selection("down") end,
   { noremap = true, silent = true, desc = "move visual selection down" })
 
+-- Set scrolloff 
+vim.opt.scrolloff = 12

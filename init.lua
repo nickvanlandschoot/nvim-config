@@ -27,3 +27,10 @@ if vim.fn.filereadable(project_config) == 1 then
   dofile(project_config)
 end
 
+--Format on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.tsx",
+  callback = function()
+    vim.lsp.buf.format({ async = false, timeout_ms = 5000 })
+  end,
+})

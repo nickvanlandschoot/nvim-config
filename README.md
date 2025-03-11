@@ -10,6 +10,7 @@ This is my default nvim config that contains various plugins and default setting
 
 ## Plugins 
 
+
 - barbar (visual tabs)
 - lazy (package manager)
 - catppuccin (for theme):
@@ -20,7 +21,10 @@ This is my default nvim config that contains various plugins and default setting
 - dap (debugging)
 - blink (autocomplete)
 - Codeium (AI autocomplete)
+- harpoon (quick file navigation)
 
+
+ooo
 ## Vim Settings
 - tab width & indentation is two spaces
 
@@ -30,7 +34,16 @@ This is my default nvim config that contains various plugins and default setting
 - <Space>+e toggles nvimtree 
 - <Space>+ff toggles telescope file search
 - <Space>+fg toggles telescoge global grep
+- <Space>+fh opens Harpoon marks in Telescope
 - <Space>+d shows a floating error window when needed
+
+### harpoon
+- <Space>+a adds current file to Harpoon
+- <C-e> toggles Harpoon quick menu
+- <C-h> jumps to Harpoon mark 1
+- <C-j> jumps to Harpoon mark 2
+- <C-k> jumps to Harpoon mark 3
+- <C-l> jumps to Harpoon mark 4
 
 ### treesitter collapsing
 - zc collapses a fold
