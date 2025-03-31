@@ -22,6 +22,8 @@ This is my default nvim config that contains various plugins and default setting
 - blink (autocomplete)
 - Codeium (AI autocomplete)
 - harpoon (quick file navigation)
+- conflict-marker (Git conflict resolution)
+- lazygit (Git interface)
 
 
 ooo
@@ -60,6 +62,24 @@ ooo
 - step_back '<F5>'
 - breakpoint '<F6>'
 - restart '<F13>'
+
+### git conflicts
+- `[x` and `]x` to jump between conflict markers
+- `%` to jump within conflict blocks
+- `ct` to use their version
+- `co` to use our version
+- `cn` to use neither version
+- `cb` to use both versions
+- `cB` to use both versions in reverse order
+
+### lazygit
+- `<Space>+gg` opens lazygit in a floating window
+- `<C-n>` move down
+- `<C-p>` move up
+- `<C-s>` stash changes
+- `<C-r>` rebase
+- `<C-m>` merge
+- `<C-c>` quit
 
 ## Configured LSPs
 - lua_ls (Lua)

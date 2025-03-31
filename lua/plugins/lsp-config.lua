@@ -11,7 +11,7 @@ return {
       require("mason-lspconfig").setup({
 
 	--Install different LSPs
-	ensure_installed = { "lua_ls", "ts_ls", "pyright", "yamlls", "jsonls" }
+	ensure_installed = { "lua_ls", "ts_ls", "pyright", "yamlls", "jsonls", "gopls" }
       })
     end,
   },
@@ -25,6 +25,7 @@ return {
       pyright = {},
       yaamlls = {},
       jsonls = {},
+      gopls = {}
     },
 
     config = function(_, servers)
@@ -40,7 +41,21 @@ return {
       --Setup LSPs
       local util = require("lspconfig.util")
 
-      lspconfig.lua_ls.setup({})
+      lspconfig.lua_ls.setup({
+        settings = {
+          Lua = {
+            runtime = { version = 'LuaJIT' },
+            diagnostics = {
+              globals = {'hs'},  -- This stops "undefined global 'hs'" errors
+            },
+            workspace = {
+              library = {
+                [vim.fn.expand("~/.hammerspoon/")] = true,
+              }
+            }
+          }
+        }
+      })
       lspconfig.pyright.setup({})
       lspconfig.yamlls.setup({})
       lspconfig.jsonls.setup({})
@@ -54,6 +69,18 @@ return {
 	  vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
 	  vim.keymap.set("n", "K", vim.lsp.buf.hover, bufopts)
 	end,
+      })
+
+      lspconfig.gopls.setup({
+	cmd = { "gopls", "serve" },
+	settings = {
+	  gopls = {
+	    analyses = {
+	      unusedparams = true,
+	    },
+	    staticcheck = true,
+	  },
+	},
       })
 
       --Custom keybindings

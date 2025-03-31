@@ -29,7 +29,7 @@ return {
           for _, item in ipairs(harpoon_files.items) do
             table.insert(file_paths, item.value)
           end
-          
+
           require("telescope.pickers").new({}, {
             prompt_title = "Harpoon",
             finder = require("telescope.finders").new_table({
@@ -39,7 +39,7 @@ return {
             sorter = conf.generic_sorter({}),
           }):find()
         end
-        
+
         toggle_telescope(harpoon:list())
       end, { desc = "Open Harpoon in Telescope" })
       vim.keymap.set("n", "<leader>fd", function()
@@ -51,7 +51,14 @@ return {
       vim.keymap.set("n", "<leader><leader>", builtin.oldfiles, {})
       vim.keymap.set("n", "<leader>f", builtin.current_buffer_fuzzy_find, {})
       vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
-      vim.keymap.set("n", "<leader>f.", builtin.lsp_document_symbols, {})
+
+      vim.keymap.set("n", "<leader>fs", function()
+	require("telescope.builtin").lsp_document_symbols({
+	  symbols = { "function", "method" }
+	})
+      end)
+
+      vim.keymap.set("n", "<leader>f.", builtin.lsp_document_symbols)
       require("telescope").load_extension("ui-select")
     end,
   },

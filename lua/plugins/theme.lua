@@ -4,14 +4,13 @@ return {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
-    enabled = true, -- Enable catppuccin
+--    enabled = true, -- Enable catppuccin
     config = function()
       require("catppuccin").setup({
         flavour = "mocha",
         transparent_background = false,
       })
       -- Set colorscheme to catppuccin
-      vim.cmd("colorscheme catppuccin")
     end,
   },
   
@@ -19,13 +18,14 @@ return {
   {
     "navarasu/onedark.nvim",
     priority = 1000,
-    enabled = false, -- Disable onedark
+    enabled = true, -- Disable onedark
     config = function()
       require("onedark").setup({
         style = "dark",
         transparent = false,
         term_colors = true,
       })
+      vim.cmd("colorscheme onedark")
     end,
   },
 }

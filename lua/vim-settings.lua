@@ -12,6 +12,9 @@ vim.keymap.set("v", "y", '"+y', { noremap = true })
 --Map open diagnostics to shift `f`
 vim.keymap.set('n', '<leader>d', '<cmd>lua vim.diagnostic.open_float()<CR>')
 
+-- LazyGit
+vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { desc = 'Open LazyGit' })
+
 -- Folding settings (managed by nvim-ufo plugin)
 -- vim.opt.foldmethod = "expr"
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
