@@ -14,6 +14,7 @@ return {
       numhl      = false,    -- disable number‐column highlighting
       linehl     = true,     -- highlight entire changed lines
       word_diff  = true,     -- highlight changed words inside the line
+      show_deleted = true,   -- show deleted lines as virtual text (red stuff)
       watch_gitdir = {
         interval = 1000,
         follow_files = true,
@@ -174,11 +175,12 @@ return {
       local gs = require('gitsigns')
       
       if gitsigns_full_mode then
-        -- Switch to MINIMAL mode: just gutter signs, no highlights, no auto-preview
+        -- Switch to MINIMAL mode: just gutter signs, no highlights, no auto-preview, no deleted lines
         gs.setup({
           signcolumn = true,    -- Show symbols in gutter
           linehl = false,       -- No line highlighting
           word_diff = false,    -- No word-level diff
+          show_deleted = false, -- No deleted line indicators
           signs = {
             add          = { text = '┃' },
             change       = { text = '┃' },
@@ -201,11 +203,12 @@ return {
         vim.notify("📍 Gitsigns: Minimal mode (gutter signs only)", vim.log.levels.INFO)
         gitsigns_full_mode = false
       else
-        -- Switch to FULL mode: full highlighting + auto-preview
+        -- Switch to FULL mode: full highlighting + auto-preview + deleted lines
         gs.setup({
           signcolumn = false,   -- No gutter symbols
           linehl = true,        -- Full line highlighting
           word_diff = true,     -- Word-level diff highlighting
+          show_deleted = true,  -- Show deleted lines (red stuff)
           signs = {
             add          = {hl = 'GitSignsAddLn',  text = ''},
             change       = {hl = 'GitSignsChangeLn', text = ''},

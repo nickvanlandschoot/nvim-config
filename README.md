@@ -2,6 +2,8 @@
 
 This is my default nvim config that contains various plugins and default settings. 
 
+This is a change
+
 ## Installation
 
 - Optionally fork for a seperate config
@@ -22,9 +24,6 @@ This is my default nvim config that contains various plugins and default setting
 - github/copilot.nvim (AI autocomplete, chat, and code suggestions)
 - harpoon (quick file navigation)
 - conflict-marker (Git conflict resolution)
-- lazygit (Git interface)
-- **gitsigns.nvim** (Git decorations and hunk operations with enhanced visual feedback)
-- **snacks.nvim** (Enhanced UI notifications and progress indicators)
 
 ## Vim Settings
 - tab width & indentation is two spaces
@@ -55,6 +54,7 @@ This is my default nvim config that contains various plugins and default setting
 - 📱 **No sign column clutter** - Clean interface without gutter symbols
 - 🎯 **Auto-preview** - Automatic hunk preview when navigating
 - ⚡ **Continuous inline diff** - Auto-preview shows when cursor stops on any changed line
+- 🔴 **Deleted line indicators** - Shows deleted lines as virtual text (for reference only)
 - 🔄 **Two-state toggle** - Switch between minimal gutter signs and full visual mode
 
 **Quick File Overview:**
@@ -63,21 +63,27 @@ This is my default nvim config that contains various plugins and default setting
 **Toggle Control:**
 - `<Space>+gS` - 🔄 **Toggle between two modes:**
   - **📍 Minimal mode**: Just gutter signs (┃, _, ~), no line highlights, no auto-preview
-  - **🎨 Full mode**: Complete line + word highlighting with auto-preview (default)
+  - **🎨 Full mode**: Complete line + word highlighting with auto-preview + deleted line reference (default)
 
 **Navigation:**
 - `]h` / `[h` - Navigate to next/previous change (auto-previews hunk)
 - `]H` / `[H` - Jump to last/first change
 
+**Working with Deleted Lines:**
+- 🔴 **Deleted lines show as virtual text** but can't be directly interacted with
+- **To stage/unstage deleted hunks**: Position cursor on the line **above or below** the deletion
+- **Use `]h`/`[h`** to navigate to deletion hunks, then use normal staging commands
+- **Preview shows full context** including what was deleted
+
 **Accept/Reject Changes:**
-- `<Space>+ha` or `<Space>+y` - ✅ **Accept hunk** (stage it)
-- `<Space>+hr` or `<Space>+n` - ❌ **Reject hunk** (reset it)
+- `<Space>+ha` or `<Space>+y` - ✅ **Accept hunk** (stage it) - works for deletions too
+- `<Space>+hr` or `<Space>+n` - ❌ **Reject hunk** (reset it) - works for deletions too
 - `<Space>+hA` - ✅ Accept all changes in current file
 - `<Space>+hR` - ❌ Reject all changes in current file
 - `<Space>+hu` - ↩️ Undo hunk staging (if you change your mind)
 
 **Preview and Info:**
-- `<Space>+hp` - 👀 Preview hunk details
+- `<Space>+hp` - 👀 Preview hunk details (shows deleted content)
 - `<Space>+hd` - 📊 Show diff for entire file
 - `<Space>+hb` - 🕵️ Git blame for current line
 
