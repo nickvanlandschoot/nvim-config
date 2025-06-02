@@ -1,1 +1,1 @@
-local test = 'original'
+local test = 'modified version with changes'

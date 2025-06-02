@@ -1,0 +1,56 @@
+{
+  "vscode-neovim.neovimExecutablePaths.darwin": "/opt/homebrew/bin/nvim",
+  "vscode-neovim.neovimExecutablePaths.linux": "/usr/bin/nvim",
+  "vscode-neovim.neovimExecutablePaths.win32": "C:\\tools\\neovim\\Neovim\\bin\\nvim.exe",
+  "vscode-neovim.neovimClean": false,
+  "vscode-neovim.ctrlKeysForInsertMode": [
+    "a", "d", "h", "j", "m", "o", "r", "t", "u", "w"
+  ],
+  "vscode-neovim.ctrlKeysForNormalMode": [
+    "a", "b", "d", "e", "f", "h", "i", "j", "k", "l", "m", "o", "r", "t", "u", "v", "w", "x", "y", "z", "/", "]"
+  ],
+  "vscode-neovim.compositeKeys": {
+    "jj": {
+      "command": "vscode-neovim.escape"
+    }
+  },
+  "vscode-neovim.compositeTimeout": 200,
+  "vscode-neovim.logLevel": "warn",
+  "vscode-neovim.highlightGroups.highlights": {
+    "Visual": {
+      "backgroundColor": "editor.selectionBackground",
+      "color": "editor.selectionForeground"
+    },
+    "VisualLine": {
+      "backgroundColor": "editor.lineHighlightBackground"
+    }
+  },
+  "editor.lineNumbers": "relative",
+  "editor.cursorSurroundingLines": 8,
+  "editor.scrollBeyondLastLine": false,
+  "editor.renderWhitespace": "selection",
+  "editor.wordWrap": "off",
+  "editor.guides.indentation": true,
+  "editor.guides.bracketPairs": true,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "editor.acceptSuggestionOnEnter": "off",
+  "editor.hover.delay": 1500,
+  "workbench.editor.splitSizing": "distribute",
+  "workbench.list.automaticKeyboardNavigation": false,
+  "vim.useSystemClipboard": false,
+  "vim.handleKeys": {},
+  "terminal.integrated.commandsToSkipShell": [
+    "vscode-neovim.send"
+  ],
+  "explorer.openEditors.visible": 0,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "search.useIgnoreFiles": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/tmp": true
+  }
+} 

@@ -1,7 +1,25 @@
--- Set tab width and leader key
-vim.cmd("set softtabstop=2")
-vim.cmd("set shiftwidth=2")
+-- Set leader key
 vim.g.mapleader = " "
+
+-- Line number settings
+vim.opt.number = true         -- Show absolute line numbers
+vim.opt.relativenumber = true -- Show relative line numbers
+
+-- Swap file and buffer management settings to prevent E325 errors
+vim.opt.swapfile = false        -- Disable swap files entirely
+vim.opt.backup = false          -- Disable backup files
+vim.opt.writebackup = false     -- Disable backup before overwriting
+vim.opt.undofile = true         -- Enable persistent undo instead
+vim.opt.undodir = vim.fn.stdpath("data") .. "/undo"  -- Set undo directory
+
+-- Create undo directory if it doesn't exist@i
+local undo_dir = vim.fn.stdpath("data") .. "/undo"
+if vim.fn.isdirectory(undo_dir) == 0 then
+  vim.fn.mkdir(undo_dir, "p")
+end
+
+-- Handle swap file conflicts automatically
+vim.opt.shortmess:append("A")   -- Don't show swap file messages
 
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = 'Toggle NvimTree' })
 
@@ -76,3 +94,16 @@ vim.keymap.set("v", "<C-S-j>", function() move_visual_selection("down") end,
 
 -- Set scrolloff 
 vim.opt.scrolloff = 12
+
+-- Prevent neovide animations
+vim.g.neovide_position_animation_length = 0
+vim.g.neovide_cursor_animation_length = 0.00
+vim.g.neovide_cursor_trail_size = 0
+vim.g.neovide_cursor_animate_in_insert_mode = false
+vim.g.neovide_cursor_animate_command_line = false
+vim.g.neovide_scroll_animation_far_lines = 0
+vim.g.neovide_scroll_animation_length = 0.00
+
+-- spell check options
+--vim.opt.spell = true
+vim.opt.spelllang = "en_us"

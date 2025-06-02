@@ -1,13 +1,11 @@
 return {
   {
-    "nvim-telescope/telescope-ui-select.nvim",
-  },
-  {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.5",
-    dependencies = { 
+    dependencies = {
       "nvim-lua/plenary.nvim",
       "ThePrimeagen/harpoon",
+      "nvim-telescope/telescope-ui-select.nvim",
     },
     config = function()
       require("telescope").setup({
@@ -52,10 +50,13 @@ return {
       vim.keymap.set("n", "<leader>f", builtin.current_buffer_fuzzy_find, {})
       vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
 
+      -- Git status picker - shows changed files in floating window
+      vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "📋 Git status (changed files)" })
+
       vim.keymap.set("n", "<leader>fs", function()
-	require("telescope.builtin").lsp_document_symbols({
-	  symbols = { "function", "method" }
-	})
+        require("telescope.builtin").lsp_document_symbols({
+          symbols = { "function", "method" }
+        })
       end)
 
       vim.keymap.set("n", "<leader>f.", builtin.lsp_document_symbols)
