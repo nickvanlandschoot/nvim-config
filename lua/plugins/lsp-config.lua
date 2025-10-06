@@ -207,7 +207,8 @@ return {
         vim.notify("Copied " .. #diagnostics .. " diagnostic(s) to clipboard", vim.log.levels.INFO)
       end
 
-      vim.keymap.set('n', '<leader>dc', copy_all_diagnostics, opts)
+      vim.keymap.set('n', '<leader>dg', copy_all_diagnostics, opts)
+      
 
     end
   },
