@@ -1,11 +1,11 @@
--- Set dark background for gruvbox
+-- Set dark background for catppuccin
 vim.o.background = "dark"
 
 return {
   {
     "navarasu/onedark.nvim",
     priority = 1000,
-    enabled = false,  -- Keeping disabled as backup theme
+    enabled = false,  -- Disabled in favor of catppuccin
     config = function()
       require("onedark").setup({
         style = "dark",
@@ -15,7 +15,7 @@ return {
     end,
   },
   
-  -- GitHub theme as another backup option
+  -- GitHub theme as backup option
   {
     "projekt0n/github-nvim-theme",
     priority = 900,
@@ -26,4 +26,3 @@ return {
     end,
   },
 }
-

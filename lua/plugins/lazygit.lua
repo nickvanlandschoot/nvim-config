@@ -54,7 +54,9 @@ return {
         on_close = function()
           return_to_previous_buffer()
         end,
-      }
+        vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { desc = 'Open LazyGit' })
+
+     }
     end,
   },
 } 

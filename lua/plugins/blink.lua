@@ -1,9 +1,6 @@
 return {
     {
       'saghen/blink.cmp',
-    -- optional: provides snippets for the snippet source
-    dependencies = 'rafamadriz/friendly-snippets',
-
     -- use a release tag to download pre-built binaries
     version = '*',
     -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
@@ -19,11 +16,15 @@ return {
       -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
       -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
       -- See the full "keymap" documentation for information on defining your own keymap.
+      completion = {
+        accept = { auto_brackets = { enabled = true } }
+      },
       keymap = {
 	preset = 'default',
 	['<Up>'] = { 'select_prev', 'fallback' },
 	['<Down>'] = { 'select_next', 'fallback' },
-	['<S-Tab>'] = {
+  ['<C-Space>'] = {'show', 'fallback' },
+	['<Tab>'] = {
 	  function(cmp)
 	    if cmp.snippet_active() then return cmp.accept()
 	    else return cmp.select_and_accept() end
@@ -46,7 +47,7 @@ return {
       -- Default list of enabled providers defined so that you can extend it
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
-	default = { 'lsp', 'path', 'snippets', 'buffer' },
+	default = { 'lsp', 'path', 'buffer' },
       },
     },
     opts_extend = { "sources.default" }

@@ -34,6 +34,184 @@ return {
         end,
       }
 
+      -- VS Code JS Debug Adapter (modern, works for JS/TS/Node)
+      dap.adapters["pwa-node"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = {
+          command = "node",
+          args = {vim.fn.stdpath('data') .. '/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', "${port}"},
+        }
+      }
+
+      -- Chrome/Browser debugging
+      dap.adapters["pwa-chrome"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = {
+          command = "node",
+          args = {vim.fn.stdpath('data') .. '/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js', "${port}"},
+        }
+      }
+
+      -- JavaScript configurations
+      dap.configurations.javascript = {
+        {
+          name = 'Launch Node.js (current file)',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${file}',
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+        },
+        {
+          name = 'Launch Node.js with args',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${file}',
+          args = function()
+            local input = vim.fn.input('Arguments: ')
+            return vim.split(input, ' ')
+          end,
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+        },
+        {
+          name = 'Attach to Node.js process',
+          type = 'pwa-node',
+          request = 'attach',
+          processId = require'dap.utils'.pick_process,
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+        },
+        {
+          name = 'Debug React App (Chrome)',
+          type = 'pwa-chrome',
+          request = 'launch',
+          url = 'http://localhost:3000',
+          webRoot = '${workspaceFolder}/src',
+          sourceMaps = true,
+          userDataDir = false,
+        }
+      }
+
+      -- TypeScript configurations
+      dap.configurations.typescript = {
+        {
+          name = 'Launch TypeScript (ts-node)',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${file}',
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+          runtimeExecutable = 'npx',
+          runtimeArgs = {'ts-node'},
+        },
+        {
+          name = 'Launch TypeScript (tsx)',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${file}',
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+          runtimeExecutable = 'npx',
+          runtimeArgs = {'tsx'},
+        },
+        {
+          name = 'Launch compiled JavaScript',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${workspaceFolder}/dist/${fileBasenameNoExtension}.js',
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+          outFiles = {"${workspaceFolder}/dist/**/*.js"},
+        },
+        {
+          name = 'Attach to TypeScript process',
+          type = 'pwa-node',
+          request = 'attach',
+          processId = require'dap.utils'.pick_process,
+          cwd = vim.fn.getcwd(),
+          sourceMaps = true,
+        }
+      }
+
+      -- React TypeScript configurations
+      dap.configurations.typescriptreact = {
+        {
+          name = 'Debug React TypeScript App',
+          type = 'pwa-chrome',
+          request = 'launch',
+          url = 'http://localhost:3000',
+          webRoot = '${workspaceFolder}/src',
+          sourceMaps = true,
+          userDataDir = false,
+        },
+        {
+          name = 'Debug Next.js (dev)',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${workspaceFolder}/node_modules/.bin/next',
+          args = {'dev'},
+          cwd = '${workspaceFolder}',
+          sourceMaps = true,
+          console = 'integratedTerminal',
+        },
+        {
+          name = 'Debug Next.js (custom port)',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${workspaceFolder}/node_modules/.bin/next',
+          args = {'dev', '--port', '3001'},
+          cwd = '${workspaceFolder}',
+          sourceMaps = true,
+          console = 'integratedTerminal',
+        }
+      }
+
+      -- JSX configurations (same as React TypeScript)
+      dap.configurations.javascriptreact = dap.configurations.typescriptreact
+
+      -- Python configurations (fallback if nvim-dap-python doesn't set them)
+      if not dap.configurations.python then
+        dap.configurations.python = {
+          {
+            type = 'python',
+            request = 'launch',
+            name = "Launch file",
+            program = "${file}",
+            pythonPath = function()
+              return 'uv'
+            end,
+          },
+          {
+            type = 'python',
+            request = 'launch',
+            name = "Launch file with arguments",
+            program = "${file}",
+            args = function()
+              local input = vim.fn.input('Arguments: ')
+              return vim.split(input, ' ')
+            end,
+            pythonPath = function()
+              return 'uv'
+            end,
+          },
+        }
+      end
+
       -- Handled by nvim-dap-go
       -- dap.adapters.go = {
       --   type = "server",
@@ -64,13 +242,49 @@ return {
         }
       end
 
-      vim.keymap.set("n", "<space>b", dap.toggle_breakpoint)
-      vim.keymap.set("n", "<space>gb", dap.run_to_cursor)
+      -- Enhanced key mappings
+      vim.keymap.set("n", "<space>b", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
+      vim.keymap.set("n", "<space>gb", dap.run_to_cursor, { desc = "Run to cursor" })
+
+      -- Enhanced configuration selection
+      vim.keymap.set("n", "<space>dl", function()
+        dap.run_last()
+      end, { desc = "Debug: Run last configuration" })
+
+      vim.keymap.set("n", "<space>dc", function()
+        dap.continue()
+      end, { desc = "Debug: Continue/Start" })
+
+      vim.keymap.set("n", "<space>ds", function()
+        local filetype = vim.bo.filetype
+        local configs = dap.configurations[filetype]
+        if not configs or #configs == 0 then
+          vim.notify("No debug configurations found for filetype: " .. filetype, vim.log.levels.WARN)
+          vim.notify("Supported filetypes: javascript, typescript, typescriptreact, javascriptreact, python, go, elixir", vim.log.levels.INFO)
+          return
+        end
+        
+        if #configs == 1 then
+          dap.run(configs[1])
+        else
+          -- Present selection menu
+          vim.ui.select(configs, {
+            prompt = "Select debug configuration:",
+            format_item = function(config)
+              return config.name or "Unknown"
+            end,
+          }, function(choice)
+            if choice then
+              dap.run(choice)
+            end
+          end)
+        end
+      end, { desc = "Debug: Select and run configuration" })
 
       -- Eval var under cursor
       vim.keymap.set("n", "<space>?", function()
         require("dapui").eval(nil, { enter = true })
-      end)
+      end, { desc = "Evaluate expression" })
 
       vim.keymap.set("n", "<F1>", dap.continue)
       vim.keymap.set("n", "<F2>", dap.step_into)

@@ -10,7 +10,26 @@ return {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "ts_ls", "lua_ls", "pyright", "yamlls", "jsonls", "gopls", "terraformls" }
+        ensure_installed = { "ts_ls", "lua_ls", "pyright", "yamlls", "jsonls", "gopls", "terraformls", "tinymist" }
+      })
+    end,
+  },
+
+  -- Add Mason DAP support
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "mfussenegger/nvim-dap",
+    },
+    config = function()
+      require("mason-nvim-dap").setup({
+        ensure_installed = {
+          "node2",  -- Node.js debugger
+          "chrome", -- Chrome debugger for frontend
+          "js-debug-adapter", -- Modern JS/TS debugger
+        },
+        automatic_installation = true,
       })
     end,
   },
@@ -133,6 +152,13 @@ return {
         on_attach = on_attach,
       })
 
+      -- Typst LSP (tinymist)
+      lspconfig.tinymist.setup({
+        capabilities = capabilities,
+        on_attach = on_attach,
+        filetypes = { "typst" },
+      })
+
       -- Other LSP servers
       for _, server in ipairs({ "pyright", "yamlls", "jsonls", "gopls" }) do
         lspconfig[server].setup({ capabilities = capabilities })
@@ -177,6 +203,7 @@ return {
         end
         local text_to_copy = table.concat(lines, "\n")
         vim.fn.setreg('"', text_to_copy) -- Copy to default register
+        vim.fn.setreg('+', text_to_copy) -- Copy to system clipboard
         vim.notify("Copied " .. #diagnostics .. " diagnostic(s) to clipboard", vim.log.levels.INFO)
       end
 

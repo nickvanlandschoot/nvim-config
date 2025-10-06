@@ -4,7 +4,8 @@ return {
   	require("treesitter-context").setup({
 	  enable=true,
 	  multi_window=true,
-	  mode='cursor'
+	  mode='cursor',
+    separator = nil
         })
   end
 }
