@@ -1,7 +1,7 @@
 return {
 	"augmentcode/augment.vim",
 	config = function()
-		-- Set OpenAI API key
+		-- Set OpenAI API key from environment variable
 		vim.g.augment_openai_api_key = vim.fn.getenv("OPENAI_API_KEY")
 
 		-- Toggle function to enable/disable completions
