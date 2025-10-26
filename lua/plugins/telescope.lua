@@ -214,7 +214,7 @@ return {
 
       vim.keymap.set("n", "<leader>fs", function()
         require("telescope.builtin").lsp_document_symbols({
-          symbols = { "function", "method" }
+          symbols = {"function", "method", "class"}
         })
       end)
 
@@ -222,6 +222,11 @@ return {
       vim.keymap.set("n", "<leader>bm", function()
         require("telescope").extensions.bookmarks.list()
       end, { desc = "🔖 Find bookmarks" })
+
+      -- Vulture - Find unused Python code
+      vim.keymap.set("n", "<leader>fv", function()
+        require("vulture-picker").vulture_picker()
+      end, { desc = "Find unused Python code (Vulture)" })
 
       -- Tmux session switcher
       vim.keymap.set("n", "<leader>s", function()

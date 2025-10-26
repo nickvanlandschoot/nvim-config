@@ -48,6 +48,32 @@ return {
       -- elsewhere in your config, without redefining it, due to `opts_extend`
       sources = {
 	default = { 'lsp', 'path', 'buffer' },
+        -- Avante completion sources
+        compat = {
+          "avante_commands",
+          "avante_mentions",
+          "avante_files",
+        },
+        providers = {
+          avante_commands = {
+            name = "avante_commands",
+            module = "blink.compat.source",
+            score_offset = 90,
+            opts = {},
+          },
+          avante_files = {
+            name = "avante_files",
+            module = "blink.compat.source",
+            score_offset = 100,
+            opts = {},
+          },
+          avante_mentions = {
+            name = "avante_mentions",
+            module = "blink.compat.source",
+            score_offset = 1000,
+            opts = {},
+          },
+        },
       },
     },
     opts_extend = { "sources.default" }

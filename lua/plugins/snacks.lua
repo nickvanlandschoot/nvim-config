@@ -79,5 +79,15 @@ return {
         vim.print = _G.dd
       end,
     })
+
+    -- Set up tmux navigation for terminal buffers
+    vim.api.nvim_create_autocmd("TermOpen", {
+      callback = function()
+        vim.keymap.set("t", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { buffer = true })
+        vim.keymap.set("t", "<C-j>", "<cmd>TmuxNavigateDown<cr>", { buffer = true })
+        vim.keymap.set("t", "<C-k>", "<cmd>TmuxNavigateUp<cr>", { buffer = true })
+        vim.keymap.set("t", "<C-l>", "<cmd>TmuxNavigateRight<cr>", { buffer = true })
+      end,
+    })
   end,
 } 

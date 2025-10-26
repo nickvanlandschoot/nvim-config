@@ -10,7 +10,8 @@ return {
     "williamboman/mason-lspconfig.nvim",
     config = function()
       require("mason-lspconfig").setup({
-        ensure_installed = { "ts_ls", "lua_ls", "pyright", "yamlls", "jsonls", "gopls", "terraformls", "tinymist" }
+        ensure_installed = { "lua_ls", "ts_ls", "pyright", "ruff", "yamlls", "jsonls", "gopls", "terraformls", "tinymist" },
+        automatic_installation = true,
       })
     end,
   },
@@ -38,7 +39,6 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = { 'saghen/blink.cmp' },
     config = function()
-      local lspconfig = require("lspconfig")
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
       -- Add error handling for LSP operations
@@ -54,20 +54,23 @@ return {
       -- Custom on_attach function with error handling
       local function on_attach(client, bufnr)
         local bufopts = { noremap = true, silent = true, buffer = bufnr }
-        
+
         -- Safe LSP keymaps
         vim.keymap.set("n", "gd", safe_lsp_operation(vim.lsp.buf.definition), bufopts)
         vim.keymap.set("n", "K", safe_lsp_operation(vim.lsp.buf.hover), bufopts)
         vim.keymap.set("n", "gr", safe_lsp_operation(vim.lsp.buf.references), bufopts)
         vim.keymap.set("n", "gi", safe_lsp_operation(vim.lsp.buf.implementation), bufopts)
-        
+
         if client.server_capabilities.documentFormattingProvider then
           client.server_capabilities.documentFormattingProvider = true
         end
       end
 
-      -- Lua LSP setup
-      lspconfig.lua_ls.setup({
+      -- Lua LSP configuration
+      vim.lsp.config.lua_ls = {
+        cmd = { 'lua-language-server' },
+        filetypes = { 'lua' },
+        root_markers = { '.luarc.json', '.luarc.jsonc', '.luacheckrc', '.stylua.toml', 'stylua.toml', 'selene.toml', 'selene.yml', '.git' },
         capabilities = capabilities,
         settings = {
           Lua = {
@@ -83,86 +86,120 @@ return {
             },
           },
         },
-      })
+      }
 
-      -- TypeScript LSP setup (updated to ts_ls)
-      lspconfig.ts_ls.setup({
-        capabilities = capabilities,
-        filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-        settings = {
-          typescript = {
-            format = { enable = true },
-            inlayHints = {
-              includeInlayParameterNameHints = 'literal',
-              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-              includeInlayFunctionParameterTypeHints = true,
-              includeInlayVariableTypeHints = false,
-              includeInlayPropertyDeclarationTypeHints = true,
-              includeInlayFunctionLikeReturnTypeHints = true,
-              includeInlayEnumMemberValueHints = true,
-            },
-            preferences = {
-              includePackageJsonAutoImports = "auto",
-              jsxAttributeCompletionStyle = "auto",
-            },
-          },
-          javascript = {
-            format = { enable = true },
-            inlayHints = {
-              includeInlayParameterNameHints = 'all',
-              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-              includeInlayFunctionParameterTypeHints = true,
-              includeInlayVariableTypeHints = true,
-              includeInlayPropertyDeclarationTypeHints = true,
-              includeInlayFunctionLikeReturnTypeHints = true,
-              includeInlayEnumMemberValueHints = true,
-            },
-          },
-          completions = {
-            completeFunctionCalls = true
-          }
-        },
-        init_options = {
-          preferences = {
-            disableSuggestions = false,
-            quotePreference = "auto",
-            includeCompletionsForModuleExports = true,
-            includeCompletionsForImportStatements = true,
-            includeCompletionsWithSnippetText = true,
-            includeAutomaticOptionalChainCompletions = true,
-          }
-        },
-        on_attach = function(client, bufnr)
-          -- Call the general on_attach function
-          on_attach(client, bufnr)
-          
-          -- TypeScript specific settings
-          local bufopts = { noremap = true, silent = true, buffer = bufnr }
-          vim.keymap.set("n", "<leader>to", "<cmd>TypescriptOrganizeImports<CR>", bufopts)
-          vim.keymap.set("n", "<leader>tr", "<cmd>TypescriptRenameFile<CR>", bufopts)
-          vim.keymap.set("n", "<leader>ta", "<cmd>TypescriptAddMissingImports<CR>", bufopts)
-          vim.keymap.set("n", "<leader>tu", "<cmd>TypescriptRemoveUnused<CR>", bufopts)
-        end,
-      })
+      -- TypeScript LSP is now handled by typescript-tools.nvim plugin
+      -- See lua/plugins/typescript-tools.lua for configuration
 
-      -- Terraform LSP setup
-      lspconfig.terraformls.setup({
-        capabilities = capabilities,
+      -- Terraform LSP configuration
+      vim.lsp.config.terraformls = {
+        cmd = { 'terraform-ls', 'serve' },
         filetypes = { "terraform", "tf", "hcl" },
-        on_attach = on_attach,
-      })
-
-      -- Typst LSP (tinymist)
-      lspconfig.tinymist.setup({
         capabilities = capabilities,
         on_attach = on_attach,
-        filetypes = { "typst" },
-      })
+      }
 
-      -- Other LSP servers
-      for _, server in ipairs({ "pyright", "yamlls", "jsonls", "gopls" }) do
-        lspconfig[server].setup({ capabilities = capabilities })
-      end
+      -- Typst LSP (tinymist) configuration
+      vim.lsp.config.tinymist = {
+        cmd = { 'tinymist' },
+        filetypes = { "typst" },
+        capabilities = capabilities,
+        on_attach = on_attach,
+      }
+
+      -- Ruff LSP configuration (Python linter/formatter)
+      vim.lsp.config.ruff = {
+        cmd = { 'ruff', 'server' },
+        filetypes = { 'python' },
+        capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          -- Disable hover in favor of Pyright
+          client.server_capabilities.hoverProvider = false
+
+          on_attach(client, bufnr)
+
+          local bufopts = { noremap = true, silent = true, buffer = bufnr }
+
+          -- Fix all auto-fixable issues with Ruff
+          vim.keymap.set("n", "<leader>tf", function()
+            vim.lsp.buf.code_action({
+              context = {
+                only = { "source.fixAll" },
+                diagnostics = {},
+              },
+              apply = true,
+            })
+          end, bufopts)
+
+          -- Extract to function/method (works in visual mode)
+          vim.keymap.set("v", "<leader>te", function()
+            vim.lsp.buf.code_action()
+          end, bufopts)
+
+          -- Show all refactor options (extract, inline, etc.)
+          vim.keymap.set({ "n", "v" }, "<leader>tr", function()
+            vim.lsp.buf.code_action()
+          end, bufopts)
+
+          -- Auto-fix and format on save with Ruff LSP
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.code_action({
+                context = {
+                  only = { "source.fixAll", "source.organizeImports" },
+                  diagnostics = {},
+                },
+                apply = true,
+              })
+              vim.lsp.buf.format({ async = false })
+            end,
+          })
+        end,
+      }
+
+      -- Python LSP configuration (Pyright for type checking)
+      vim.lsp.config.pyright = {
+        cmd = { 'pyright-langserver', '--stdio' },
+        filetypes = { 'python' },
+        capabilities = capabilities,
+        on_attach = on_attach,
+        settings = {
+          pyright = {
+            -- Use Ruff for organizing imports
+            disableOrganizeImports = true,
+          },
+          python = {
+            analysis = {
+              typeCheckingMode = "basic",
+            },
+          },
+        },
+      }
+
+      -- YAML LSP configuration
+      vim.lsp.config.yamlls = {
+        cmd = { 'yaml-language-server', '--stdio' },
+        filetypes = { 'yaml', 'yaml.docker-compose', 'yaml.gitlab' },
+        capabilities = capabilities,
+      }
+
+      -- JSON LSP configuration
+      vim.lsp.config.jsonls = {
+        cmd = { 'vscode-json-language-server', '--stdio' },
+        filetypes = { 'json', 'jsonc' },
+        capabilities = capabilities,
+      }
+
+      -- Go LSP configuration
+      vim.lsp.config.gopls = {
+        cmd = { 'gopls' },
+        filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+        capabilities = capabilities,
+      }
+
+      -- Enable all configured LSP servers
+      vim.lsp.enable({ 'lua_ls', 'terraformls', 'tinymist', 'ruff', 'pyright', 'yamlls', 'jsonls', 'gopls' })
 
       -- Custom keybindings with error handling
       local opts = { noremap = true, silent = true }
