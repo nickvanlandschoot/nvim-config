@@ -1,1 +1,1 @@
-require('intrace').load()
+require('plugins.ui.colorscheme').load()
