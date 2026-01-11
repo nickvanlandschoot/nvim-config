@@ -2,7 +2,6 @@ return {
   {
     "mfussenegger/nvim-dap",
     dependencies = {
-      "leoluz/nvim-dap-go",
       'mfussenegger/nvim-dap-python',
       "rcarriga/nvim-dap-ui",
       "theHamsta/nvim-dap-virtual-text",
@@ -34,7 +33,6 @@ return {
       -- Setup language-specific DAP configurations from language modules
       require('languages.python').setup_dap()
       require('languages.typescript').setup_dap()
-      require('languages.go').setup_dap()
 
       -- Elixir (if elixir-ls-debugger is available)
       local elixir_ls_debugger = vim.fn.exepath "elixir-ls-debugger"

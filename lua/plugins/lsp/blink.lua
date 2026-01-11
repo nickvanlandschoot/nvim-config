@@ -17,7 +17,10 @@ return {
       -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
       -- See the full "keymap" documentation for information on defining your own keymap.
       completion = {
-        accept = { auto_brackets = { enabled = true } }
+        accept = { auto_brackets = { enabled = true } },
+        menu = {
+          auto_show = true, -- Always show completion menu automatically
+        },
       },
       keymap = {
 	preset = 'default',

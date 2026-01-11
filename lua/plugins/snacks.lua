@@ -3,10 +3,7 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
-    -- bigfile configuration to handle large files efficiently
-    bigfile = { enabled = true },
-    
-    -- notification system
+    -- Only enable notification system (used by keymaps)
     notifier = {
       enabled = true,
       timeout = 3000,
@@ -29,38 +26,25 @@ return {
       style = "compact",
     },
     
-    -- quickfile for faster file loading
-    quickfile = { enabled = true },
-    
-    -- status column enhancements
-    statuscolumn = { enabled = false }, -- Keep simple status column
-    
-    -- word highlighting on cursor hold
-    words = { enabled = true },
-    
-    -- progress notifications for long-running operations
+    -- Progress notifications (needed by claudecode for long-running operations)
     progress = {
       enabled = true,
       style = "compact",
     },
     
-    -- LazyGit integration improvements
-    lazygit = {
-      enabled = true,
-      theme = {
-        activeBorderColor = { fg = "Special" },
-        inactiveBorderColor = { fg = "FloatBorder" },
-        selectedLineBgColor = { bg = "Visual" },
-      },
-    },
-    
-    -- Terminal enhancements
+    -- Terminal enhancements (needed by claudecode for running commands)
     terminal = {
       enabled = true,
       win = {
         style = "terminal",
       },
     },
+    
+    -- Disable unused features
+    bigfile = { enabled = false },
+    quickfile = { enabled = false },
+    statuscolumn = { enabled = false },
+    words = { enabled = false },
   },
   
   keys = {
@@ -72,7 +56,7 @@ return {
     vim.api.nvim_create_autocmd("User", {
       pattern = "VeryLazy",
       callback = function()
-        -- Setup some globals for easier access
+        -- Setup debug helper (used for _G.dd and vim.print)
         _G.dd = function(...)
           Snacks.debug.inspect(...)
         end
@@ -80,7 +64,7 @@ return {
       end,
     })
 
-    -- Set up tmux navigation for terminal buffers
+    -- Set up tmux navigation for terminal buffers (needed for proper pane switching)
     vim.api.nvim_create_autocmd("TermOpen", {
       callback = function()
         vim.keymap.set("t", "<C-h>", "<cmd>TmuxNavigateLeft<cr>", { buffer = true })

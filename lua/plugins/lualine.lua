@@ -70,6 +70,43 @@ return {
       }
     end
 
+    -- Function to get git-relative path with caching
+    local git_root_cache = {}
+    local function git_relative_path()
+      -- Skip for special buffer types
+      local ft = vim.bo.filetype
+      if ft == 'oil' or ft == 'neo-tree' or ft == 'TelescopePrompt' then
+        return ''
+      end
+
+      local filepath = vim.fn.expand('%:p')
+      if filepath == '' then
+        return '[No Name]'
+      end
+
+      local dir = vim.fn.expand('%:p:h')
+
+      -- Check cache first
+      if not git_root_cache[dir] then
+        local git_root = vim.fn.systemlist('git -C ' .. vim.fn.shellescape(dir) .. ' rev-parse --show-toplevel 2>/dev/null')[1]
+        if git_root and vim.v.shell_error == 0 then
+          git_root_cache[dir] = git_root
+        else
+          git_root_cache[dir] = false
+        end
+      end
+
+      local git_root = git_root_cache[dir]
+      if git_root then
+        -- We're in a git repo, return relative path
+        local path_from_root = filepath:gsub('^' .. vim.pesc(git_root) .. '/', '')
+        return path_from_root
+      else
+        -- Not in a git repo, just return filename
+        return vim.fn.expand('%:t')
+      end
+    end
+
     require("lualine").setup({
       options = {
         theme = get_aura_theme(),
@@ -77,6 +114,11 @@ return {
           statusline = 100,
           tabline = 100,
           winbar = 100,
+        }
+      },
+      sections = {
+        lualine_c = {
+          git_relative_path,
         }
       }
     })
@@ -88,6 +130,11 @@ return {
         require("lualine").setup({
           options = {
             theme = get_aura_theme(),
+          },
+          sections = {
+            lualine_c = {
+              git_relative_path,
+            }
           }
         })
       end,

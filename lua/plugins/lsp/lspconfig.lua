@@ -17,7 +17,6 @@ return {
           "ruff",
           "yamlls",
           "jsonls",
-          "gopls",
           "terraformls",
           "tinymist"
         },
@@ -38,6 +37,7 @@ return {
           "node2",
           "chrome",
           "js-debug-adapter",
+          "debugpy",
         },
         automatic_installation = true,
       })
@@ -62,7 +62,6 @@ return {
       -- Setup language-specific LSP servers from language modules
       require('languages.python').setup_lsp(capabilities, on_attach)
       require('languages.lua').setup_lsp(capabilities, on_attach)
-      require('languages.go').setup_lsp(capabilities, on_attach)
       require('languages.terraform').setup_lsp(capabilities, on_attach)
       require('languages.typst').setup_lsp(capabilities, on_attach)
       require('languages.json-yaml').setup_lsp(capabilities, on_attach)
@@ -75,8 +74,7 @@ return {
         'ruff',
         'pyright',
         'yamlls',
-        'jsonls',
-        'gopls'
+        'jsonls'
       })
 
       -- Note: TypeScript LSP is handled by typescript-tools.nvim plugin

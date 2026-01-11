@@ -1,32 +1,31 @@
--- One Dark Pro color palette
 local C = {
-  bg        = "#282c34",
-  surface   = "#21252b",
-  border    = "#3e4451",
-  fg        = "#abb2bf",
-  muted     = "#5c6370",
-  comment   = "#5c6370",
-  docstring = "#5c6370",
-  red       = "#e06c75",
-  red_b     = "#e06c75",
-  red_light = "#e06c75",
-  amber     = "#d19a66",
-  green     = "#98c379",
-  green_b   = "#98c379",
-  yellow    = "#e5c07b",
-  yellow_b  = "#e5c07b",
-  blue      = "#61afef",
-  purple    = "#c678dd",
-  purple_b  = "#c678dd",
-  cyan      = "#56b6c2",
-  cyan_dim  = "#56b6c2",
-  orange    = "#d19a66",
-  orange_b  = "#d19a66",
-  brown     = "#d19a66",
-  brown_b   = "#d19a66",
-  white_d   = "#abb2bf",
-  punct_dim = "#5c6370",
-  param     = "#c678dd",
+  bg        = "#0a0a0a",
+  surface   = "#0f0f0f",
+  border    = "#1a1a1a",
+  fg        = "#ffffff",
+  muted     = "#888888",
+  comment   = "#6b9fb5",        -- muted cyan for comments
+  docstring = "#5a8fa3",        -- cooler hue for docstrings
+  red       = "#dc2626",        -- red-600 colorblind-safe
+  red_b     = "#d86868",
+  red_light = "#f5a5a5",        -- super light red for text highlights
+  amber     = "#f59e0b",        -- amber-500 colorblind-safe
+  green     = "#49d36d",
+  green_b   = "#60e185",
+  yellow    = "#d6a800",
+  yellow_b  = "#e9bf1a",
+  blue      = "#3b82f6",        -- blue-500 colorblind-safe
+  purple    = "#6e3ac2",
+  purple_b  = "#8350d8",
+  cyan      = "#22d3ee",        -- cyan-400 for types
+  cyan_dim  = "#67e8f9",        -- cyan-300 dimmer
+  orange    = "#b43232",
+  orange_b  = "#d24747",
+  brown     = "#7a5f3a",
+  brown_b   = "#9b7a4d",
+  white_d   = "#e6e6e6",
+  punct_dim = "#555555",        -- dimmed punctuation
+  param     = "#a78bfa",        -- purple-400 for parameters
 }
 
 local function hi(group, opts) vim.api.nvim_set_hl(0, group, opts) end
@@ -43,18 +42,18 @@ function M.load()
   hi("WinSeparator",   { fg=C.border })
   hi("VertSplit",      { fg=C.border })
   hi("LineNr",         { fg=C.muted, bg=C.bg })
-  hi("CursorLine",     { bg="#2c313c" })
+  hi("CursorLine",     { bg="#0d0d0d" })
   hi("CursorLineNr",   { fg=C.yellow_b, bold=true })
   hi("SignColumn",     { bg=C.bg })
-  hi("StatusLine",     { fg=C.white_d, bg="#21252b" })
-  hi("StatusLineNC",   { fg=C.muted, bg="#21252b" })
-  hi("Pmenu",          { fg=C.white_d, bg="#21252b" })
+  hi("StatusLine",     { fg=C.white_d, bg="#101010" })
+  hi("StatusLineNC",   { fg=C.muted, bg="#0e0e0e" })
+  hi("Pmenu",          { fg=C.white_d, bg="#101010" })
   hi("PmenuSel",       { fg=C.bg, bg=C.orange_b, bold=true })
   hi("PmenuThumb",     { bg=C.border })
-  hi("Visual",         { bg="#3e4451" })
-  hi("Search",         { fg=C.bg, bg=C.yellow, bold=true })
+  hi("Visual",         { bg="#1e2a2e" })            -- brighter teal-tinted selection
+  hi("Search",         { fg=C.bg, bg=C.red_light, bold=true })  -- super light red
   hi("IncSearch",      { fg=C.bg, bg=C.orange_b, bold=true })
-  hi("MatchParen",     { fg=C.cyan, bg="#3e4451", bold=true })
+  hi("MatchParen",     { fg=C.cyan, bg="#1a1a1a", bold=true })  -- clear matching paren
   hi("Whitespace",     { fg=C.border })
   hi("NonText",        { fg=C.border })
   hi("Comment",        { fg=C.comment, italic=true })           -- brighter muted cyan
@@ -92,48 +91,49 @@ function M.load()
   hi("DiagnosticUnderlineWarn",  { underline=true, sp=C.amber })
   hi("DiagnosticUnderlineInfo",  { underline=true, sp=C.blue })
   hi("DiagnosticUnderlineHint",  { underline=true, sp=C.cyan_dim })
-  hi("LspReferenceText",  { bg="#2c313c" })
-  hi("LspReferenceRead",  { bg="#2c313c" })
-  hi("LspReferenceWrite", { bg="#2c313c" })
+  hi("LspReferenceText",  { bg="#121212" })
+  hi("LspReferenceRead",  { bg="#121212" })
+  hi("LspReferenceWrite", { bg="#121212" })
 
   -- Git
-  hi("DiffAdd",        { fg=C.green, bg="#2c3a2e" })
-  hi("DiffChange",     { fg=C.yellow, bg="#3a3628" })
-  hi("DiffDelete",     { fg=C.red, bg="#3a2c2e" })
-  hi("DiffText",       { fg=C.orange, bg="#3a322c" })
+  hi("DiffAdd",        { fg=C.green_b, bg="#09140e" })
+  hi("DiffChange",     { fg=C.yellow_b, bg="#131006" })
+  hi("DiffDelete",     { fg=C.red_b, bg="#140909" })
+  hi("DiffText",       { fg=C.orange_b, bg="#1a120a" })
   hi("GitSignsAdd",    { fg=C.green })
   hi("GitSignsChange", { fg=C.yellow })
   hi("GitSignsDelete", { fg=C.red })
 
   -- Telescope
-  hi("TelescopeNormal",{ fg=C.white_d, bg=C.surface })
-  hi("TelescopeBorder",{ fg=C.border,  bg=C.surface })
-  hi("TelescopeSelection", { fg=C.bg, bg=C.blue, bold=true })
-  hi("TelescopeMatching", { fg=C.red, bold=true })
-  hi("TelescopePromptPrefix", { fg=C.blue })
+  hi("TelescopeNormal",{ fg=C.white_d, bg="#0f0f0f" })
+  hi("TelescopeBorder",{ fg=C.border,  bg="#0f0f0f" })
+  hi("TelescopeSelection", { fg=C.bg, bg=C.orange_b, bold=true })
+  hi("TelescopeMatching", { fg=C.red_light, bold=true })           -- super light red for matched text
+  hi("TelescopePromptPrefix", { fg=C.orange_b })
 
   -- Blink.cmp completion menu
-  hi("BlinkCmpMenu", { fg=C.white_d, bg=C.surface })
-  hi("BlinkCmpMenuSelection", { fg=C.bg, bg=C.blue, bold=true })
+  hi("BlinkCmpMenu", { fg=C.white_d, bg="#101010" })
+  hi("BlinkCmpMenuSelection", { fg=C.bg, bg=C.orange_b, bold=true })
   hi("BlinkCmpLabel", { fg=C.white_d })
-  hi("BlinkCmpLabelMatch", { fg=C.red, bold=true })
-  hi("BlinkCmpKind", { fg=C.blue })
+  hi("BlinkCmpLabelMatch", { fg=C.red_light, bold=true })          -- super light red for matched text
+  hi("BlinkCmpKind", { fg=C.orange_b })
 
   -- Neo-tree common groups
   hi("Directory",      { fg=C.yellow_b })
   hi("ErrorMsg",       { fg=C.red_b })
 
   -- WhichKey
-  hi("WhichKey",       { fg=C.purple })
-  hi("WhichKeyGroup",  { fg=C.blue })
+  hi("WhichKey",       { fg=C.purple_b })
+  hi("WhichKeyGroup",  { fg=C.orange_b })
   hi("WhichKeyDesc",   { fg=C.white_d })
 
-  -- Floating UI borders
-  hi("FloatTitle",     { fg=C.blue, bg=C.surface, bold=true })
+  -- Floating UI borders consistent with your border algo (brightened)
+  -- Base border color brightened ~35%
+  hi("FloatTitle",     { fg=C.orange_b, bg=C.surface, bold=true })
 
   -- Indent guides
-  hi("IblIndent",      { fg="#3e4451" })
-  hi("IblScope",       { fg="#528bff" })
+  hi("IblIndent",      { fg="#141414" })            -- subtle indent guides
+  hi("IblScope",       { fg="#252525" })            -- brighter active scope guide
 
   -- Python-specific (Treesitter)
   hi("@string.documentation.python", { fg=C.docstring, italic=true })  -- docstrings

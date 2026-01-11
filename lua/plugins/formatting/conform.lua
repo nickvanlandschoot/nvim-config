@@ -24,12 +24,6 @@ return {
       formatters_by_ft[ft] = formatters
     end
 
-    -- Go
-    local go = require('languages.go')
-    for ft, formatters in pairs(go.get_formatters()) do
-      formatters_by_ft[ft] = formatters
-    end
-
     return {
       formatters_by_ft = formatters_by_ft,
       format_on_save = {

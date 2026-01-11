@@ -33,14 +33,4 @@ function M.copy_all_diagnostics()
   vim.notify("Copied " .. #diagnostics .. " diagnostic(s) to clipboard", vim.log.levels.INFO)
 end
 
--- Safe LSP operation wrapper with error handling
-function M.safe_lsp_operation(operation)
-  return function()
-    local ok, err = pcall(operation)
-    if not ok then
-      vim.notify("LSP operation failed: " .. tostring(err), vim.log.levels.WARN)
-    end
-  end
-end
-
 return M
