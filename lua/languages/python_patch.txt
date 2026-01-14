@@ -1,0 +1,7 @@
+Line 154: After 'diagnosticMode = "openFilesOnly",' add:
+				stubPath = "",
+
+Line 157: Change 'defaultInterpreterPath' to 'pythonPath'
+
+Line 159: After 'venvPath = workspace_root,' add:
+			venv = vim.fn.isdirectory(workspace_root .. "/.venv") == 1 and ".venv" or nil,

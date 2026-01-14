@@ -257,6 +257,19 @@ vim.keymap.set("n", "<leader>fs", function()
 	require("telescope.builtin").lsp_document_symbols({ symbols = { "function", "method", "class" } })
 end, vim.tbl_extend("force", opts, { desc = "Document symbols (filtered)" }))
 
+-- Key files management
+vim.keymap.set("n", "<leader>fk", function()
+	require("keyfiles").picker()
+end, vim.tbl_extend("force", opts, { desc = "Key files" }))
+
+vim.keymap.set("n", "<leader>fK", function()
+	require("keyfiles").toggle_current()
+end, vim.tbl_extend("force", opts, { desc = "Toggle key file" }))
+
+vim.keymap.set("n", "<leader>fC", function()
+	require("keyfiles").clear()
+end, vim.tbl_extend("force", opts, { desc = "Clear key files" }))
+
 vim.keymap.set(
 	"n",
 	"<leader>f.",

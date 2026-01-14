@@ -139,12 +139,6 @@ function M.setup_lsp(capabilities, on_attach)
 			end
 		end
 
-		-- Detect if .venv exists in workspace root
-		local venv_name = nil
-		if vim.fn.isdirectory(workspace_root .. "/.venv") == 1 then
-			venv_name = ".venv"
-		end
-
 		return {
 			pyright = {
 				-- Use Ruff for organizing imports
@@ -158,14 +152,11 @@ function M.setup_lsp(capabilities, on_attach)
 					autoSearchPaths = true,
 					useLibraryCodeForTypes = true,
 					diagnosticMode = "openFilesOnly",
-					-- Explicitly tell Pyright to ignore external stub packages
-					stubPath = "",
-				},
+				stubPath = "","				},
 				-- Set the Python interpreter path if detected
 				pythonPath = python_interpreter,
-				-- Help Pyright find venvs automatically
+				-- Help Pyright find venvs automatically (set to workspace root)
 				venvPath = workspace_root,
-				venv = venv_name,
 			},
 		}
 	end
@@ -173,77 +164,60 @@ function M.setup_lsp(capabilities, on_attach)
 	vim.lsp.config.pyright = {
 		cmd = { mason_bin .. "/pyright-langserver", "--stdio" },
 		filetypes = { "python" },
-		-- Prioritize pyrightconfig.json and pyproject.toml over .git
-		-- This ensures we start in backend/ not project root
 		root_markers = {
-			"pyrightconfig.json",
+			".git",
 			"pyproject.toml",
 			"setup.py",
 			"requirements.txt",
 			"Pipfile",
 			".venv",
-			".git",
+			"pyrightconfig.json",
 		},
 		capabilities = capabilities,
 		on_attach = function(client, bufnr)
-			-- Let pyrightconfig.json handle base settings, only update interpreter dynamically
-			local python_interpreter = detect_python_interpreter()
-			if python_interpreter then
-				local settings = {
-					python = {
-						pythonPath = python_interpreter,
-					}
-				}
-				-- Only update the Python path, let pyrightconfig.json handle the rest
-				client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
-				client.notify("workspace/didChangeConfiguration", { settings = settings })
-			end
+			-- Update settings when attaching to ensure we use the right interpreter
+			local settings = get_pyright_settings(bufnr)
+			-- Update client settings
+			client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
+			-- Notify Pyright of configuration change
+			client.notify("workspace/didChangeConfiguration", { settings = settings })
 			on_attach(client, bufnr)
 
 			-- Add diagnostic command to check Pyright settings
 			vim.api.nvim_buf_create_user_command(bufnr, "PyrightInfo", function()
 				local detected = detect_python_interpreter()
+				local settings = get_pyright_settings(bufnr)
 				local info = {
 					"Pyright Configuration:",
-					"  Root Dir: " .. (client.config.root_dir or "<not set>"),
-					"  Python Interpreter (detected): " .. (detected or "<not detected>"),
-					"  Python Interpreter (LSP setting): " .. (client.config.settings.python and client.config.settings.python.pythonPath or "<not set>"),
-					"",
-					"  Using pyrightconfig.json from: " .. (client.config.root_dir or "<unknown>") .. "/pyrightconfig.json",
+					"  Python Interpreter: " .. (detected or "<not detected>"),
+					"  venvPath: " .. (settings.python.venvPath or "<not set>"),
+					"  defaultInterpreterPath: " .. (settings.python.defaultInterpreterPath or "<not set>"),
 				}
 				if detected then
-					-- Check if sqlalchemy is available
-					local check = vim.fn.system(detected .. ' -c "from sqlalchemy.ext.asyncio import AsyncSession; print(\\"OK\\")" 2>&1')
+					-- Check if networkx is available
+					local check = vim.fn.system(detected .. ' -c "import networkx; print(networkx.__file__)" 2>&1')
 					if vim.v.shell_error == 0 then
-						table.insert(info, "  ✓ SQLAlchemy asyncio imports work in this interpreter")
+						table.insert(info, "  networkx found at: " .. vim.fn.trim(check))
 					else
-						table.insert(info, "  ✗ SQLAlchemy asyncio imports FAIL: " .. vim.fn.trim(check))
+						table.insert(info, "  networkx: NOT FOUND in this interpreter")
 					end
 				end
 				vim.notify(table.concat(info, "\n"), vim.log.levels.INFO)
 			end, { desc = "Show Pyright configuration info" })
 		end,
-		-- Don't set initial settings - let on_attach handle it with correct context
-		settings = {},
+		settings = get_pyright_settings(),
 	}
 
-	-- Update Pyright Python path when entering Python buffers to catch environment changes
+	-- Update Pyright settings when entering Python buffers to catch environment changes
 	vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
 		pattern = "*.py",
 		callback = function(ev)
 			local clients = vim.lsp.get_clients({ name = "pyright", bufnr = ev.buf })
 			if #clients > 0 then
-				local python_interpreter = detect_python_interpreter()
-				if python_interpreter then
-					local settings = {
-						python = {
-							pythonPath = python_interpreter,
-						}
-					}
-					for _, client in ipairs(clients) do
-						client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
-						client.notify("workspace/didChangeConfiguration", { settings = settings })
-					end
+				local settings = get_pyright_settings(ev.buf)
+				for _, client in ipairs(clients) do
+					client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
+					client.notify("workspace/didChangeConfiguration", { settings = settings })
 				end
 			end
 		end,

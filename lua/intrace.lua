@@ -146,7 +146,7 @@ function M.load()
   hi("@type.python",                 { fg=C.cyan })                    -- type hints
   hi("@variable.parameter.python",   { fg=C.param })                   -- parameters distinct
   hi("@punctuation.special.python",  { fg=C.orange })                  -- decorators @
-  hi("@decorator.python",            { fg=C.orange, bold=true })       -- decorator names
+  hi("@decorator.python",            { fg=C.brown_b, bold=true })      -- decorator names
   hi("@string.escape.python",        { fg=C.cyan })                    -- f-string {} expressions
 
   -- TypeScript/JavaScript (Treesitter)
@@ -164,7 +164,7 @@ function M.load()
   hi("@lsp.type.type",               { fg=C.cyan })                    -- types
   hi("@lsp.type.class",              { fg=C.yellow, bold=true })
   hi("@lsp.type.interface",          { fg=C.cyan, bold=true })
-  hi("@lsp.type.decorator",          { fg=C.orange, bold=true })
+  hi("@lsp.type.decorator",          { fg=C.brown_b, bold=true })
   hi("@lsp.type.function",           { fg=C.orange_b, bold=true })
 
   -- General Treesitter enhancements
