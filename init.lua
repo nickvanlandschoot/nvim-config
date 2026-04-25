@@ -28,4 +28,4 @@ require("lazy").setup("plugins", {
 })
 
 -- Set colorscheme
-vim.cmd([[colorscheme intrace-soft]])
+vim.cmd([[colorscheme intrace-muted]])

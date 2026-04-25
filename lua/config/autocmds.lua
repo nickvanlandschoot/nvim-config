@@ -6,7 +6,7 @@
 -- ============================================================================
 
 local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
-vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
+vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 	group = lint_augroup,
 	callback = function()
 		local ok, lint = pcall(require, "lint")
@@ -14,7 +14,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
 			lint.try_lint()
 		end
 	end,
-	desc = "Trigger linting on buffer enter and insert leave",
+	desc = "Trigger linting on save",
 })
 
 -- ============================================================================
@@ -41,88 +41,74 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 	callback = function()
 		local mark = vim.api.nvim_buf_get_mark(0, '"')
 		local lcount = vim.api.nvim_buf_line_count(0)
-		local bufname = vim.api.nvim_buf_get_name(0)
 
 		if mark[1] > 0 and mark[1] <= lcount then
-			local success = pcall(vim.api.nvim_win_set_cursor, 0, mark)
-			if success then
-				vim.notify(
-					string.format(
-						"Restored cursor to line %d, col %d in %s",
-						mark[1],
-						mark[2],
-						vim.fn.fnamemodify(bufname, ":t")
-					),
-					vim.log.levels.INFO
-				)
-			end
-		else
-			vim.notify(
-				string.format("No valid cursor position to restore in %s", vim.fn.fnamemodify(bufname, ":t")),
-				vim.log.levels.DEBUG
-			)
+			pcall(vim.api.nvim_win_set_cursor, 0, mark)
 		end
 	end,
 	desc = "Restore cursor position when opening a file",
 })
 
+
 -- ============================================================================
--- AUTO HOVER / TYPE INFORMATION
+-- SHADA FILE CLEANUP
 -- ============================================================================
 
--- Toggle state for auto-hover (default: disabled to avoid blocking)
-vim.g.auto_hover_enabled = false
+-- Clean up leftover ShaDa temp files on exit to prevent E138 errors
+vim.api.nvim_create_autocmd("VimLeavePre", {
+	callback = function()
+		local shada_dir = vim.fn.stdpath("state") .. "/shada"
+		local temp_pattern = shada_dir .. "/main.shada.tmp.*"
+		
+		-- Clean up any leftover temp files
+		vim.fn.system("rm -f " .. vim.fn.shellescape(temp_pattern))
+	end,
+	desc = "Clean up ShaDa temp files on exit",
+})
 
--- Show type information automatically on cursor hold
-local hover_augroup = vim.api.nvim_create_augroup("auto_hover", { clear = true })
+-- Also clean up on startup if there are too many temp files (safety check)
+vim.api.nvim_create_autocmd("VimEnter", {
+	once = true,
+	callback = function()
+		local shada_dir = vim.fn.stdpath("state") .. "/shada"
+		local temp_pattern = shada_dir .. "/main.shada.tmp.*"
+		
+		-- Count temp files
+		local temp_files = vim.fn.glob(temp_pattern, false, true)
+		if #temp_files > 5 then
+			-- Too many temp files, clean them up
+			vim.fn.system("rm -f " .. vim.fn.shellescape(temp_pattern))
+			vim.notify("Cleaned up " .. #temp_files .. " leftover ShaDa temp files", vim.log.levels.INFO)
+		end
+	end,
+	desc = "Clean up excessive ShaDa temp files on startup",
+})
 
-local function setup_auto_hover()
-	-- Clear existing autocmds
-	vim.api.nvim_clear_autocmds({ group = hover_augroup })
+-- ============================================================================
+-- NVIM SERVER REGISTRATION
+-- ============================================================================
 
-	if vim.g.auto_hover_enabled then
-		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-			group = hover_augroup,
-			callback = function()
-				-- Only show in normal/insert mode, skip for special buffers
-				local ft = vim.bo.filetype
-				if ft == "" or ft == "TelescopePrompt" or ft == "NvimTree" or ft == "neo-tree" or ft == "oil" then
-					return
-				end
+-- Register this instance's server socket so external scripts (e.g. theme
+-- switcher) can find and talk to it via --server.
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    local server = vim.v.servername
+    if server == "" then return end
+    local dir = vim.fn.expand("~/.cache/nvim/servers")
+    vim.fn.mkdir(dir, "p")
+    local path = dir .. "/" .. vim.fn.getpid()
+    vim.fn.writefile({ server }, path)
+  end,
+  desc = "Register nvim server socket for theme switcher",
+})
 
-				-- Check if LSP is available for current buffer
-				local clients = vim.lsp.get_clients({ bufnr = 0 })
-				if #clients == 0 then
-					return
-				end
-
-				-- Show hover information (type/documentation) for symbol under cursor
-				-- Use hover.nvim if available (less intrusive), otherwise fallback to default hover
-				local ok, hover = pcall(require, "hover")
-				if ok then
-					hover.hover()
-				else
-					-- Fallback to default LSP hover
-					pcall(function()
-						vim.lsp.buf.hover()
-					end)
-				end
-			end,
-			desc = "Show type information automatically on cursor hold",
-		})
-	end
-end
-
--- Initialize auto-hover (disabled by default to avoid blocking)
-setup_auto_hover()
-
--- Export toggle function for keymap
-_G.toggle_auto_hover = function()
-	vim.g.auto_hover_enabled = not vim.g.auto_hover_enabled
-	setup_auto_hover()
-	local status = vim.g.auto_hover_enabled and "enabled" or "disabled"
-	vim.notify("Auto-hover " .. status, vim.log.levels.INFO)
-end
+vim.api.nvim_create_autocmd("VimLeave", {
+  callback = function()
+    vim.fn.delete(vim.fn.expand("~/.cache/nvim/servers") .. "/" .. vim.fn.getpid())
+  end,
+  desc = "Unregister nvim server socket on exit",
+})
 
 -- Note: Language-specific autocmds (like Python Ruff auto-fix) are defined
 -- in their respective language modules (lua/languages/*.lua)

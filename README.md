@@ -1,6 +1,10 @@
 # Nvim Config
 
-A comprehensive Neovim configuration with modern plugins, LSP support, debugging capabilities, and intelligent file management. Features include syntax highlighting, autocomplete, Git integration, and support for multiple programming languages including TypeScript, Python, and more.
+A modern Neovim setup with curated plugins for LSP, debugging, AI, search, and Git workflows. Optimized for TypeScript, Python, and frontend/backend development with fast startup, reliable diagnostics, and practical defaults across projects.
+
+Built for day-to-day engineering work across web, API, and scripting repos, this config prioritizes consistency: fast file navigation, accurate completions, robust formatting/linting feedback, and repeatable debugging flows. It pairs a lightweight plugin stack with focused UX defaults so you can move between coding, refactoring, and troubleshooting quickly, while keeping the setup flexible enough to adapt as your workflow evolves.
+
+The goal is to keep friction low and signal high: quick file access, clear diagnostics, stable project context, and predictable edits whether you are writing TypeScript, Python, or Lua. It includes tuned defaults for LSP-driven development, git-aware workflows, and interactive tooling (search, AI assistance, and debugging) so you can stay in motion from first open file to a clean patch.
 
 ## Installation
 
@@ -14,11 +18,11 @@ A comprehensive Neovim configuration with modern plugins, LSP support, debugging
 - telescope (searching)
 - treesitter (syntax highlighting)
 - lualine (status bar)
+- nvim-tree (file explorer tree)
 - dap (debugging)
 - blink (autocomplete)
-- harpoon (quick file navigation)
 - neocodeium (AI autocomplete powered by Windsurf)
-- claudecode (AI chat and code assistance)
+- claudecode (AI chat and code assistance with tab support)
 
 ## Vim Settings
 
@@ -34,19 +38,25 @@ A comprehensive Neovim configuration with modern plugins, LSP support, debugging
 - <Space>+ff toggles telescope file search
 - <Space>+fg toggles telescope global grep
 - <Space>+fr opens global find and replace with ripgrep
-- <Space>+fh opens Harpoon marks in Telescope
 - <Space>+gs opens git status in Telescope (changed files picker)
-- <Space>+d shows a floating error window when needed
-- <Space>+dc copy diagnostics to clipboard
+- <Space>+gd opens git diff in Telescope for changed files
+- <Space>+d shows a floating diagnostic window
+- [d / ]d jump to previous/next diagnostic
+- <Space>+dc continue/start debug session
+- <Space>+dg copies all diagnostics to clipboard
+- <Space>+y copy selection to clipboard
+- <Space>+p paste from clipboard
+- <Space>+cp copy current file path
+- <Space>+cP copy absolute file path
+- <C-s> open a horizontal split
+- <C-p> open a vertical split
+- <C-q> close current window/split
 
-### harpoon
+### file explorer
 
-- <Space>+a adds current file to Harpoon
-- <C-e> toggles Harpoon quick menu
-- <C-h> jumps to Harpoon mark 1
-- <C-j> jumps to Harpoon mark 2
-- <C-k> jumps to Harpoon mark 3
-- <C-l> jumps to Harpoon mark 4
+- <Space>+e toggles nvim-tree file explorer
+- <Space>+E reveals current file in nvim-tree
+- `-` opens Oil file explorer (current directory)
 
 ### treesitter collapsing
 
@@ -177,10 +187,6 @@ A comprehensive Neovim configuration with modern plugins, LSP support, debugging
 - pyright (Python)
 - jsonls (JSON)
 - yamlls (YAML)
-
-## Credits
-
-Some parts of config loosely based on this [https://www.youtube.com/playlist?list=PLsz00TDipIffreIaUNk64KxTIkQaGguqn](guide) by [https://www.youtube.com/@typecraft_dev](typecraft) on setting up nvim.
 
 ### TypeScript JSX Configuration
 

@@ -31,5 +31,9 @@ if vim.fn.isdirectory(undo_dir) == 0 then
   vim.fn.mkdir(undo_dir, "p")
 end
 
+-- ShaDa (shared data) configuration
+-- Reduce write frequency to prevent temp file accumulation
+vim.opt.shada = "'100,<50,s10,h"
+
 -- Spelling
 vim.opt.spelllang = "en_us"

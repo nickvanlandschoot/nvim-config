@@ -1,28 +1,59 @@
 return {
-	"coder/claudecode.nvim",
+	"snirt/claudecode.nvim",
+	branch = "main",
 	dependencies = { "folke/snacks.nvim" },
 	config = function()
 		require("claudecode").setup({
 			diff_opts = {
 				vertical_split = false,
+				auto_close_on_accept = true,
+			},
+			terminal = {
+				tabs = {
+					enabled = true,
+					mouse_enabled = true,
+					height = 1,
+					show_close_button = true,
+					show_new_button = true,
+					separator = " | ",
+					active_indicator = "*",
+					keymaps = {
+						next_tab = "<C-n>",
+						prev_tab = "<C-p>",
+						close_tab = false, -- Use <leader>an keymap instead
+						new_tab = false, -- Use <leader>al keymap instead
+					},
+				},
 			},
 		})
 
-		-- Helper functions to preserve cursor position
+		-- Helper functions to preserve cursor position using event-driven logic
+		local function create_cursor_restore_autocmd(mark_pos)
+			local augroup = vim.api.nvim_create_augroup("ClaudeCodeCursorRestore", { clear = true })
+
+			-- Create one-shot autocmd that triggers after window/buffer operations settle
+			vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter" }, {
+				group = augroup,
+				once = true, -- Automatically removes itself after first trigger
+				callback = function()
+					-- Restore cursor position to the saved mark
+					pcall(vim.api.nvim_win_set_cursor, 0, mark_pos)
+					-- Clean up the augroup
+					vim.api.nvim_del_augroup_by_id(augroup)
+				end,
+			})
+		end
+
 		local function accept_diff_with_cursor_restore()
-			vim.cmd("normal! m'") -- Set mark at current position
+			local mark_pos = vim.api.nvim_win_get_cursor(0)
 			vim.cmd("ClaudeCodeDiffAccept")
-			vim.defer_fn(function()
-				vim.cmd("normal! ``") -- Return to mark
-			end, 100)
+			create_cursor_restore_autocmd(mark_pos)
 		end
 
 		local function deny_diff_with_cursor_restore()
-			vim.cmd("normal! m'") -- Set mark at current position
+			local mark_pos = vim.api.nvim_win_get_cursor(0)
 			vim.cmd("ClaudeCodeDiffDeny")
-			vim.defer_fn(function()
-				vim.cmd("normal! ``") -- Return to mark
-			end, 100)
+			create_cursor_restore_autocmd(mark_pos)
 		end
 
 		-- Expose these as commands
@@ -47,5 +78,10 @@ return {
 		-- Diff management
 		{ "<leader>aa", "<cmd>ClaudeCodeDiffAcceptRestore<cr>", desc = "Accept diff" },
 		{ "<leader>ad", "<cmd>ClaudeCodeDiffDenyRestore<cr>", desc = "Deny diff" },
+
+		-- Multi-session management
+		{ "<leader>an", "<cmd>ClaudeCodeNew<cr>", desc = "New Claude session" },
+		{ "<leader>al", "<cmd>ClaudeCodeSessions<cr>", desc = "List Claude sessions" },
+		{ "<leader>ax", "<cmd>ClaudeCodeCloseSession<cr>", desc = "Close Claude session" },
 	},
 }

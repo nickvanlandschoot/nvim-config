@@ -1,12 +1,19 @@
+-- Typst: Tinymist LSP is in lua/languages/typst.lua + lua/plugins/lsp/lspconfig.lua.
+-- typst-preview.nvim gives live preview + cross-jump (browser); it is not Sioyek.
+-- Use Sioyek separately as a PDF reader for exported PDFs if you like.
+
 return {
   -- Typst syntax and filetype
   "kaarmu/typst.vim",
-  -- Typst live preview
+  -- Typst live preview (Tinymist-based; uses embedded/web preview, not external Sioyek sync)
   {
     "chomosuke/typst-preview.nvim",
     ft = "typst",
     cmd = { "TypstPreview", "TypstPreviewStop", "TypstPreviewFollowCursor", "TypstPreviewUpdate" },
-    opts = {},
+    opts = {
+      follow_cursor = true,
+      invert_colors = "never",
+    },
     config = function()
       -- Initialize plugin if setup is available
       local ok, tp = pcall(require, "typst-preview")

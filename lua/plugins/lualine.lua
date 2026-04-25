@@ -111,15 +111,26 @@ return {
       options = {
         theme = get_aura_theme(),
         refresh = {
-          statusline = 100,
-          tabline = 100,
-          winbar = 100,
+          statusline = 3000,
+          tabline = 3000,
+          winbar = 3000,
         }
       },
       sections = {
         lualine_c = {
           git_relative_path,
-        }
+        },
+        lualine_z = {
+          {
+            function()
+              local ok, opencode_statusline = pcall(require, "opencode")
+              if ok then
+                return opencode_statusline.statusline()
+              end
+              return ""
+            end,
+          },
+        },
       }
     })
 
@@ -130,11 +141,27 @@ return {
         require("lualine").setup({
           options = {
             theme = get_aura_theme(),
+            refresh = {
+              statusline = 3000,
+              tabline = 3000,
+              winbar = 3000,
+            },
           },
           sections = {
             lualine_c = {
               git_relative_path,
-            }
+            },
+            lualine_z = {
+              {
+                function()
+                  local ok, opencode_statusline = pcall(require, "opencode")
+                  if ok then
+                    return opencode_statusline.statusline()
+                  end
+                  return ""
+                end,
+              },
+            },
           }
         })
       end,

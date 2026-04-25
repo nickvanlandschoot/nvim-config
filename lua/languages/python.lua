@@ -152,12 +152,12 @@ function M.setup_lsp(capabilities, on_attach)
 			},
 			python = {
 				analysis = {
-					typeCheckingMode = "strict",
+					typeCheckingMode = "standard",
 					-- Auto-detect virtual environments
 					autoImportCompletions = true,
 					autoSearchPaths = true,
 					useLibraryCodeForTypes = true,
-					diagnosticMode = "openFilesOnly",
+					diagnosticMode = "workspace",
 					-- Explicitly tell Pyright to ignore external stub packages
 					stubPath = "",
 				},
@@ -192,7 +192,7 @@ function M.setup_lsp(capabilities, on_attach)
 				local settings = {
 					python = {
 						pythonPath = python_interpreter,
-					}
+					},
 				}
 				-- Only update the Python path, let pyrightconfig.json handle the rest
 				client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
@@ -207,13 +207,18 @@ function M.setup_lsp(capabilities, on_attach)
 					"Pyright Configuration:",
 					"  Root Dir: " .. (client.config.root_dir or "<not set>"),
 					"  Python Interpreter (detected): " .. (detected or "<not detected>"),
-					"  Python Interpreter (LSP setting): " .. (client.config.settings.python and client.config.settings.python.pythonPath or "<not set>"),
+					"  Python Interpreter (LSP setting): "
+						.. (client.config.settings.python and client.config.settings.python.pythonPath or "<not set>"),
 					"",
-					"  Using pyrightconfig.json from: " .. (client.config.root_dir or "<unknown>") .. "/pyrightconfig.json",
+					"  Using pyrightconfig.json from: "
+						.. (client.config.root_dir or "<unknown>")
+						.. "/pyrightconfig.json",
 				}
 				if detected then
 					-- Check if sqlalchemy is available
-					local check = vim.fn.system(detected .. ' -c "from sqlalchemy.ext.asyncio import AsyncSession; print(\\"OK\\")" 2>&1')
+					local check = vim.fn.system(
+						detected .. ' -c "from sqlalchemy.ext.asyncio import AsyncSession; print(\\"OK\\")" 2>&1'
+					)
 					if vim.v.shell_error == 0 then
 						table.insert(info, "  ✓ SQLAlchemy asyncio imports work in this interpreter")
 					else
@@ -238,7 +243,7 @@ function M.setup_lsp(capabilities, on_attach)
 					local settings = {
 						python = {
 							pythonPath = python_interpreter,
-						}
+						},
 					}
 					for _, client in ipairs(clients) do
 						client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
@@ -329,11 +334,9 @@ function M.get_formatters()
 	}
 end
 
--- Setup Python linting (via nvim-lint)
+-- Ruff linting is handled by the Ruff LSP server; no nvim-lint linters needed.
 function M.get_linters()
-	return {
-		python = { "ruff" },
-	}
+	return {}
 end
 
 return M

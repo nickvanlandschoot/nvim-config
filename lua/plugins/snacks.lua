@@ -39,7 +39,17 @@ return {
         style = "terminal",
       },
     },
-    
+
+    -- Input enhancements (needed by opencode.nvim)
+    input = {
+      enabled = true,
+    },
+
+    -- Picker enhancements (needed by opencode.nvim)
+    picker = {
+      enabled = true,
+    },
+
     -- Disable unused features
     bigfile = { enabled = false },
     quickfile = { enabled = false },

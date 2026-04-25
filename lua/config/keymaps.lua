@@ -10,6 +10,8 @@ local opts = { noremap = true, silent = true }
 -- Clipboard operations
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y', { noremap = true, desc = "Yank to clipboard" })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p', { noremap = true, desc = "Paste from clipboard" })
+vim.keymap.set("n", "<leader>cp", ":let @+ = expand('%:.')<CR>", { noremap = true, desc = "Copy file path" })
+vim.keymap.set("n", "<leader>cP", ":let @+ = expand('%:p')<CR>", { noremap = true, desc = "Copy absolute file path" })
 
 -- Visual mode indentation (maintain selection)
 vim.keymap.set("v", "<Tab>", ">gv", { noremap = true, desc = "Indent and reselect" })
@@ -111,17 +113,12 @@ vim.keymap.set(
 	"n",
 	"gk",
 	function()
-		-- Toggle auto-hover on/off
-		if _G.toggle_auto_hover then
-			_G.toggle_auto_hover()
-		else
-			-- Fallback: show type information manually
-			safe_lsp_operation(function()
-				vim.lsp.buf.signature_help()
-			end)()
-		end
+		-- Show signature help
+		safe_lsp_operation(function()
+			vim.lsp.buf.signature_help()
+		end)()
 	end,
-	vim.tbl_extend("force", opts, { desc = "Toggle auto-hover" })
+	vim.tbl_extend("force", opts, { desc = "Show signature help" })
 )
 vim.keymap.set("n", "<leader>gi", function()
 	require("telescope.builtin").lsp_implementations(telescope_vertical)
@@ -185,8 +182,8 @@ end, vim.tbl_extend("force", opts, { desc = "Copy all diagnostics" }))
 vim.keymap.set(
 	"n",
 	"<leader>ff",
-	"<cmd>Telescope find_files<cr>",
-	vim.tbl_extend("force", opts, { desc = "Find files" })
+	"<cmd>TelescopeFindFilesPlus<cr>",
+	vim.tbl_extend("force", opts, { desc = "Find files (+ force-included)" })
 )
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", vim.tbl_extend("force", opts, { desc = "Live grep" }))
 vim.keymap.set("n", "<leader>fr", function()
@@ -529,6 +526,14 @@ vim.keymap.set("n", "<leader>nd", function()
 end, vim.tbl_extend("force", opts, { desc = "Dismiss notifications" }))
 
 -- ============================================================================
+-- READING MODE KEYMAPS
+-- ============================================================================
+
+vim.keymap.set("n", "<leader>r", function()
+	require("config.reading-mode").toggle()
+end, vim.tbl_extend("force", opts, { desc = "Toggle reading mode" }))
+
+-- ============================================================================
 -- AI ASSISTANT KEYMAPS
 -- ============================================================================
 
@@ -544,16 +549,35 @@ end, vim.tbl_extend("force", opts, { desc = "Dismiss notifications" }))
 --   <leader>aa - Accept diff
 --   <leader>ad - Deny diff
 
--- NeoCodeium (AI completion powered by Windsurf)
--- Keymaps are defined in lua/plugins/neocodeium.lua
--- Main keymaps:
---   <A-f> - Accept completion
---   <A-w> - Accept word
---   <A-a> - Accept line
---   <A-e> - Cycle/complete suggestions
---   <A-r> - Cycle suggestions (reverse)
---   <A-c> - Clear suggestions
---   <leader>ta - Toggle NeoCodeium
+-- pi keymaps are defined in lua/plugins/pi.lua
+-- Prefix: <leader>;
+-- Chat / terminal workflow:
+--   <leader>;c - Toggle pi chat terminal
+--   <leader>;f - Focus pi chat terminal
+--   <leader>;R - Resume pi chat session
+--   <leader>;C - Continue pi chat session
+--   <leader>;n - New pi chat session
+--   <leader>;X - Close pi chat session
+-- Inline / code-edit workflow:
+--   <leader>;i - Ask pi inline
+--   <leader>;b - Add current buffer to inline context
+--   <leader>;s - Send selection or add explorer path to inline context
+--   <leader>;a - Accept inline diff
+--   <leader>;d - Deny inline diff
+--   <leader>;r - Reject inline diff (alias)
+--   <leader>;D - Cascade reject current and later diffs
+--   <leader>;l - List inline sessions
+--   <leader>;x - Cancel inline work
+-- Shared:
+--   <leader>;m - Select pi inline model override
+--   <leader>;L - Open pi log
+
+-- Copilot AI completion toggle
+vim.keymap.set("n", "<leader>at", function()
+	vim.g.copilot_cmp_enabled = not (vim.g.copilot_cmp_enabled ~= false)
+	local state = vim.g.copilot_cmp_enabled and "enabled" or "disabled"
+	vim.notify("Copilot completions " .. state, vim.log.levels.INFO)
+end, vim.tbl_extend("force", opts, { desc = "Toggle Copilot completions" }))
 
 -- ============================================================================
 -- FOLDING KEYMAPS (UFO)
@@ -561,3 +585,17 @@ end, vim.tbl_extend("force", opts, { desc = "Dismiss notifications" }))
 
 -- Note: zR and zM are mapped in lua/plugins/ufo.lua
 -- These are kept here for reference but the plugin mappings take precedence
+
+-- ============================================================================
+-- DIAGRAM EDITOR KEYMAPS
+-- ============================================================================
+
+vim.keymap.set("n", "<leader>de", function()
+  package.loaded["diagram-editor"] = nil
+  require("diagram-editor").edit()
+end, vim.tbl_extend("force", opts, { desc = "Diagram: Edit" }))
+
+vim.keymap.set("n", "<leader>dn", function()
+  package.loaded["diagram-editor"] = nil
+  require("diagram-editor").new()
+end, vim.tbl_extend("force", opts, { desc = "Diagram: New" }))

@@ -18,7 +18,8 @@ return {
           "yamlls",
           "jsonls",
           "terraformls",
-          "tinymist"
+          "tinymist",
+          "gopls"
         },
         automatic_installation = true,
       })
@@ -57,6 +58,14 @@ return {
         if client.server_capabilities.documentFormattingProvider then
           client.server_capabilities.documentFormattingProvider = true
         end
+        
+        -- Disable LSP features for very large files to save memory
+        local max_filesize = 500 * 1024 -- 500 KB
+        local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(bufnr))
+        if ok and stats and stats.size > max_filesize then
+          -- Disable semantic tokens and other memory-intensive features for large files
+          client.server_capabilities.semanticTokensProvider = nil
+        end
       end
 
       -- Setup language-specific LSP servers from language modules
@@ -65,6 +74,7 @@ return {
       require('languages.terraform').setup_lsp(capabilities, on_attach)
       require('languages.typst').setup_lsp(capabilities, on_attach)
       require('languages.json-yaml').setup_lsp(capabilities, on_attach)
+      require('languages.go').setup_lsp(capabilities, on_attach)
 
       -- Enable all configured LSP servers
       vim.lsp.enable({
@@ -74,7 +84,8 @@ return {
         'ruff',
         'pyright',
         'yamlls',
-        'jsonls'
+        'jsonls',
+        'gopls'
       })
 
       -- Note: TypeScript LSP is handled by typescript-tools.nvim plugin

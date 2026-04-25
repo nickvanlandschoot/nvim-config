@@ -1,0 +1,291 @@
+## Architecture Diagram Creator
+
+Create structured ASCII architecture diagrams using the diagram-editor format.
+
+### Critical Format Requirements
+
+**ABSOLUTELY ESSENTIAL**: The metadata line MUST be a single line with NO newlines inside the JSON.
+
+#### Exact Structure
+```
+[[[diagram:DiagramName
+%%{...ENTIRE_JSON_ON_ONE_LINE_NO_NEWLINES...}
+...ASCII art rendering (generated, read-only)...
+]]]
+```
+
+**Common Fatal Mistake**: Adding newlines/indentation in the JSON. This breaks parsing.
+
+❌ WRONG:
+```
+[[[diagram:Test
+%%{
+  "type": "phase",
+  "content": "Test"
+}
+...
+]]]
+```
+
+✅ CORRECT:
+```
+[[[diagram:Test
+%%{"type":"phase","content":"Test","children":[{"type":"box","content":"Step 1","children":[]}]}
+...
+]]]
+```
+
+The JSON must be minified (no spaces around braces/brackets is fine, but single line is mandatory).
+
+### Data Model
+
+#### Node Structure
+Every node has:
+```json
+{
+  "id": "unique_string",           // Required: unique identifier
+  "type": "phase|box|start|end",   // Required: node type
+  "content": "Label text",         // Required: string or array of strings
+  "children": [...],               // Required: array (can be empty)
+  "layout": "vertical|horizontal", // Required: how children are arranged
+  "metadata": {}                   // Optional: custom data
+}
+```
+
+#### Node Types
+
+1. **phase** - Major sections/groupings with double-line borders (╔═╗)
+   - Use for: Major system components, deployment stages, service groups
+   - Defaults to `horizontal` layout
+   - Renders with title bar and contains children
+
+2. **box** - Standard process/component with single-line borders (┌─┐)
+   - Use for: Individual services, steps, processes, data stores
+   - Defaults to `vertical` layout
+   - Most common node type
+
+3. **start** - Entry point marker
+   - Use for: System entry, beginning of flow
+   - Same rendering as box, semantic meaning
+
+4. **end** - Exit point marker
+   - Use for: System exit, end of flow
+   - Same rendering as box, semantic meaning
+
+#### Layout Types
+
+- **vertical**: Children stack top-to-bottom with ▼ arrow connectors
+  - Use for: Sequential processes, pipelines, workflows
+
+- **horizontal**: Children arrange left-to-right with → arrow connectors
+  - Use for: Parallel services, simultaneous operations, service groups
+
+### Architecture Diagram Best Practices
+
+#### What to Include
+
+1. **Major Components** - Each significant service, system, or process
+2. **Data Flow** - Show how information moves through the system
+3. **Grouping** - Use phases to group related services
+4. **Entry/Exit Points** - Mark where flows begin and end
+5. **Key Steps** - Important processing stages
+6. **Parallel vs Sequential** - Make execution order clear
+
+#### What NOT to Include
+
+1. **Implementation Details** - Avoid function names, code specifics
+2. **Excessive Nesting** - Keep hierarchy to 3-4 levels max
+3. **Too Many Nodes** - Combine similar steps, stay focused
+4. **Redundant Labels** - Don't repeat information
+5. **Overly Generic Names** - "Process Data" → "Transform JSON to Parquet"
+
+#### Styling Guidelines
+
+**Content Naming**:
+- Be specific but concise: "Parse HTTP Request" not "Process"
+- Use title case: "User Authentication" not "user authentication"
+- Action verbs for boxes: "Validate", "Transform", "Send"
+- Noun phrases for phases: "Data Pipeline", "API Gateway"
+
+**Hierarchy**:
+- Root should be a phase with the overall system name
+- Use phases for major subsystems (3-5 phases typical)
+- Boxes for individual components within phases
+- Keep depth reasonable (3-4 levels maximum)
+
+**Layout Choices**:
+- Phases: horizontal layout for service groups, vertical for pipeline stages
+- Boxes: vertical layout for sub-steps, horizontal for parallel operations
+- Match layout to actual system architecture
+
+### Common Patterns
+
+#### Microservice Architecture
+```
+Root Phase (vertical)
+├─ API Gateway Phase (horizontal)
+│  ├─ Auth Service (box)
+│  ├─ Rate Limiter (box)
+│  └─ Router (box)
+├─ Business Logic Phase (horizontal)
+│  ├─ User Service (box, with vertical children for its steps)
+│  ├─ Order Service (box, with vertical children for its steps)
+│  └─ Payment Service (box, with vertical children for its steps)
+└─ Data Layer Phase (horizontal)
+   ├─ PostgreSQL (box)
+   ├─ Redis Cache (box)
+   └─ S3 Storage (box)
+```
+
+#### Data Pipeline
+```
+Root Phase (vertical)
+├─ Start (start)
+├─ Ingestion Phase (horizontal)
+│  ├─ API Fetch (box)
+│  ├─ File Upload (box)
+│  └─ Stream Consumer (box)
+├─ Processing Phase (vertical)
+│  ├─ Validate (box)
+│  ├─ Transform (box)
+│  ├─ Enrich (box)
+│  └─ Aggregate (box)
+├─ Storage Phase (horizontal)
+│  ├─ Data Lake (box)
+│  └─ Data Warehouse (box)
+└─ End (end)
+```
+
+#### Request/Response Flow
+```
+Root Phase (vertical)
+├─ Start (start)
+├─ Load Balancer (box)
+├─ Application Phase (vertical)
+│  ├─ Parse Request (box)
+│  ├─ Auth Check (box)
+│  ├─ Business Logic (box, with horizontal children for parallel ops)
+│  └─ Format Response (box)
+├─ Send Response (box)
+└─ End (end)
+```
+
+### Translating Requirements to Diagrams
+
+#### Step 1: Identify Major Components
+List the key systems, services, or stages. These become your phases.
+
+**Requirement**: "Build an e-commerce checkout system"
+**Components**: Payment Processing, Inventory Management, Order Fulfillment, Notification
+
+#### Step 2: Determine Flow
+Is it sequential (pipeline) or parallel (services)?
+- Sequential → vertical layout
+- Parallel → horizontal layout
+
+**Checkout is sequential**: validate → process payment → update inventory → create order → notify
+
+#### Step 3: Add Detail Layers
+Break down each major component into steps (boxes within phases).
+
+**Payment Processing** breaks down into:
+- Validate Payment Method
+- Call Payment Gateway
+- Handle Response
+- Record Transaction
+
+#### Step 4: Choose Hierarchy
+- Make root a vertical phase if it's a pipeline/flow
+- Make root a horizontal phase if it's a service architecture
+- Nest phases when you have grouped operations within a stage
+
+#### Step 5: Assign IDs
+Generate unique IDs for each node:
+- Root: `"node_root_<something>"`
+- Phases: `"p_1"`, `"p_2"`, etc.
+- Boxes: `"n_1"`, `"n_2"`, etc.
+- Start/End: `"start_1"`, `"end_1"`
+
+### Working with Pipelines
+
+Pipelines are sequential processes. Best represented as:
+
+```
+Root Phase (vertical layout)
+├─ Start
+├─ Stage 1 Phase (horizontal if parallel, vertical if sequential)
+│  └─ Steps...
+├─ Stage 2 Phase
+│  └─ Steps...
+├─ Stage 3 Phase
+│  └─ Steps...
+└─ End
+```
+
+**Key principle**: Vertical layout = "then", Horizontal layout = "and"
+
+Examples:
+- "Process data then store it" → vertical
+- "Call API and log request" → horizontal
+- "Service A, Service B, and Service C running together" → horizontal
+
+### Creating Effective Diagrams
+
+1. **Start Simple**: Begin with 3-5 major components, add detail iteratively
+2. **Think Top-Down**: Root → Phases → Boxes → Nested details
+3. **Match Reality**: Layout should reflect actual system behavior
+4. **Be Consistent**: Similar components should have similar structure
+5. **Test Readability**: Can someone understand the flow in 30 seconds?
+
+### Common Mistakes to Avoid
+
+1. **Newlines in JSON**: Will break parsing - minify the JSON
+2. **Missing Required Fields**: Every node needs id, type, content, children, layout
+3. **Wrong Layout Defaults**: Phases default horizontal, boxes default vertical
+4. **Too Deep Nesting**: More than 4 levels gets hard to read
+5. **Vague Labels**: "Handler" → "HTTP Request Handler"
+6. **Empty Children Arrays**: Must be `[]` not omitted
+
+### Implementation Checklist
+
+When creating a diagram:
+
+- [ ] Understand the system architecture/flow
+- [ ] Identify major components (phases)
+- [ ] Determine sequential vs parallel relationships
+- [ ] Choose root layout (vertical for pipelines, horizontal for services)
+- [ ] Create node structure with all required fields
+- [ ] Assign unique IDs to all nodes
+- [ ] Use descriptive, specific content labels
+- [ ] Set appropriate layouts (vertical=sequential, horizontal=parallel)
+- [ ] Keep nesting to 3-4 levels maximum
+- [ ] Minify JSON to single line
+- [ ] Wrap in [[[diagram:Name ... ]]]
+
+### User Interaction
+
+**Always**:
+- Ask clarifying questions if requirements are unclear
+- Confirm major components before building deep hierarchy
+- Suggest layout choices based on system behavior
+- Offer to adjust detail level based on user preference
+
+**Listen for**:
+- "Keep it high-level" → Fewer boxes, less nesting
+- "Show more detail" → Add nested children
+- "These run in parallel" → Horizontal layout
+- "Sequential steps" → Vertical layout
+- "Group these together" → Wrap in a phase
+
+### Example: Complete Diagram
+
+```
+[[[diagram:API Gateway
+%%{"id":"root","type":"phase","content":"API Gateway System","layout":"vertical","metadata":{},"children":[{"id":"start_1","type":"start","content":"HTTP Request","layout":"vertical","metadata":{},"children":[]},{"id":"p_gateway","type":"phase","content":"Gateway Layer","layout":"horizontal","metadata":{},"children":[{"id":"n_auth","type":"box","content":"Authentication","layout":"vertical","metadata":{},"children":[{"id":"n_auth_1","type":"box","content":"Validate Token","layout":"vertical","metadata":{},"children":[]},{"id":"n_auth_2","type":"box","content":"Check Permissions","layout":"vertical","metadata":{},"children":[]}]},{"id":"n_rate","type":"box","content":"Rate Limiter","layout":"vertical","metadata":{},"children":[]},{"id":"n_route","type":"box","content":"Router","layout":"vertical","metadata":{},"children":[]}]},{"id":"p_backend","type":"phase","content":"Backend Services","layout":"horizontal","metadata":{},"children":[{"id":"n_user","type":"box","content":"User Service","layout":"vertical","metadata":{},"children":[]},{"id":"n_data","type":"box","content":"Data Service","layout":"vertical","metadata":{},"children":[]}]},{"id":"n_response","type":"box","content":"Format Response","layout":"vertical","metadata":{},"children":[]},{"id":"end_1","type":"end","content":"HTTP Response","layout":"vertical","metadata":{},"children":[]}]}
+(ASCII rendering appears here)
+]]]
+```
+
+### Final Reminder
+
+**THE JSON METADATA LINE MUST BE A SINGLE LINE**. No newlines, no matter how long it gets. This is the #1 cause of parsing failures. When in doubt, minify.
