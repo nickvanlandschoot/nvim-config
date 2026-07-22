@@ -1,1 +1,1 @@
-require('intrace-muted').load()
+require("intrace.loader").load("intrace-muted", "intrace-muted", "dark")

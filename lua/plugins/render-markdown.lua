@@ -19,13 +19,7 @@ return {
 	},
 	config = function(_, opts)
 		require("render-markdown").setup(opts)
-
-		-- Set custom highlight colors for headers (no background, just foreground color and size)
-		vim.api.nvim_set_hl(0, "RenderMarkdownH1", { fg = "#a277ff", bold = true })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH2", { fg = "#61ffca", bold = true })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH3", { fg = "#ffca85", bold = true })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH4", { fg = "#82e2ff", bold = true })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH5", { fg = "#f694ff", bold = true })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH6", { fg = "#a277ff", bold = false })
+		-- Heading colors are owned by the active colorscheme. Keeping palette
+		-- values out of plugin configuration prevents cross-theme contamination.
 	end,
 }

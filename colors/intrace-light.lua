@@ -1,2 +1,1 @@
-vim.o.background = "light"
-require('intrace-light').load()
+require("intrace.loader").load("intrace-light", "intrace-light", "light")

@@ -29,31 +29,34 @@ return {
         visual_fg = to_hex(visual.fg) or to_hex(normal.fg),
         search_bg = to_hex(search.bg) or to_hex(visual.bg),
         search_fg = to_hex(search.fg) or to_hex(normal.fg),
-        add_bg = to_hex(diffadd.bg) or to_hex(diffadd.fg),
-        change_bg = to_hex(diffchange.bg) or to_hex(diffchange.fg),
-        delete_bg = to_hex(diffdelete.bg) or to_hex(diffdelete.fg),
+        -- Mode sections need the semantic foreground colors. Diff backgrounds
+        -- are deliberately subtle in muted themes and made mode changes nearly
+        -- invisible when used as lualine section backgrounds.
+        add_bg = to_hex(diffadd.fg) or to_hex(diffadd.bg),
+        change_bg = to_hex(diffchange.fg) or to_hex(diffchange.bg),
+        delete_bg = to_hex(diffdelete.fg) or to_hex(diffdelete.bg),
       }
 
       -- Use Normal bg for sections b and c to maintain dark background
       -- Use distinct colors for section a based on mode
       return {
         normal = {
-          a = { bg = colors.visual_bg, fg = colors.fg, gui = 'bold' },
+          a = { bg = colors.visual_bg, fg = colors.visual_fg, gui = 'bold' },
           b = { bg = colors.bg, fg = colors.fg },
           c = { bg = colors.bg, fg = colors.fg },
         },
         insert = {
-          a = { bg = colors.add_bg, fg = colors.fg, gui = 'bold' },
+          a = { bg = colors.add_bg, fg = colors.bg, gui = 'bold' },
           b = { bg = colors.bg, fg = colors.fg },
           c = { bg = colors.bg, fg = colors.fg },
         },
         visual = {
-          a = { bg = colors.change_bg, fg = colors.fg, gui = 'bold' },
+          a = { bg = colors.change_bg, fg = colors.bg, gui = 'bold' },
           b = { bg = colors.bg, fg = colors.fg },
           c = { bg = colors.bg, fg = colors.fg },
         },
         replace = {
-          a = { bg = colors.delete_bg, fg = colors.fg, gui = 'bold' },
+          a = { bg = colors.delete_bg, fg = colors.bg, gui = 'bold' },
           b = { bg = colors.bg, fg = colors.fg },
           c = { bg = colors.bg, fg = colors.fg },
         },

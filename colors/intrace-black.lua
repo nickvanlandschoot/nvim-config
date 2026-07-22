@@ -1,1 +1,1 @@
-require('intrace-black').load()
+require("intrace.loader").load("intrace-black", "intrace-black", "dark")

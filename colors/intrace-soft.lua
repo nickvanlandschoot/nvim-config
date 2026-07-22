@@ -1,1 +1,1 @@
-require('intrace-soft').load()
+require("intrace.loader").load("intrace-soft", "intrace-soft", "dark")
