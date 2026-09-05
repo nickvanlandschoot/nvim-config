@@ -187,6 +187,7 @@ The goal is to keep friction low and signal high: quick file access, clear diagn
 - pyright (Python)
 - jsonls (JSON)
 - yamlls (YAML)
+- sourcekit-lsp (Swift)
 
 ### TypeScript JSX Configuration
 

@@ -16,5 +16,6 @@ return {
 	".editorconfig",
 	"secrets/*",
 	".agentscope/*",
+	"intraceadx/*",
 	-- Add more patterns here as needed
 }

@@ -24,6 +24,12 @@ return {
       formatters_by_ft[ft] = formatters
     end
 
+    -- C#
+    local csharp = require('languages.csharp')
+    for ft, formatters in pairs(csharp.get_formatters()) do
+      formatters_by_ft[ft] = formatters
+    end
+
     return {
       formatters_by_ft = formatters_by_ft,
       format_on_save = {

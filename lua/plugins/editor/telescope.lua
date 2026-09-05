@@ -98,10 +98,40 @@ return {
 
 			require("telescope").load_extension("ui-select")
 
-			-- Simple git changed files command using built-in git_status
-			vim.api.nvim_create_user_command("TelescopeGitDiff", function()
-				require("telescope.builtin").git_status()
-			end, {})
+			-- Resolve Git pickers from the current file when possible, and fail with a
+			-- normal notification instead of letting Telescope throw outside a repo.
+			local function current_git_root()
+				local path = vim.api.nvim_buf_get_name(0)
+				local start_dir = path ~= "" and vim.fs.dirname(path) or vim.fn.getcwd()
+				if not start_dir or vim.fn.isdirectory(start_dir) == 0 then
+					start_dir = vim.fn.getcwd()
+				end
+
+				local result = vim.system(
+					{ "git", "-C", start_dir, "rev-parse", "--show-toplevel" },
+					{ text = true }
+				):wait()
+				if result.code ~= 0 then
+					return nil
+				end
+				return vim.trim(result.stdout or "")
+			end
+
+			local function git_status_picker()
+				local root = current_git_root()
+				if not root or root == "" then
+					vim.notify("Not inside a Git repository", vim.log.levels.WARN)
+					return
+				end
+
+				local ok, err = pcall(require("telescope.builtin").git_status, { cwd = root })
+				if not ok then
+					vim.notify("Could not open Git status: " .. tostring(err), vim.log.levels.ERROR)
+				end
+			end
+
+			vim.api.nvim_create_user_command("TelescopeGitStatus", git_status_picker, {})
+			vim.api.nvim_create_user_command("TelescopeGitDiff", git_status_picker, {})
 
 			-- Enhanced find_files that always includes force-included files even if in .gitignore
 			-- Uses Telescope's built-in find_files which already has streaming support
@@ -118,26 +148,47 @@ return {
 					limit = 1000,
 				}
 				
-				-- Use fd if available (faster and streams properly)
+				-- Use fd if available (faster and streams properly). The normal command
+				-- respects Git ignores; run a second fd command for the explicitly
+				-- force-included patterns so those files are added without exposing all
+				-- ignored files.
 				if fd_available then
+					local force_patterns = require("config.force-include-files")
+					local fd_args = {
+						"--type", "f", "--hidden",
+						"--exclude", ".git",
+						"--exclude", "node_modules",
+						"--exclude", ".venv",
+						"--exclude", "venv",
+						"--exclude", "__pycache__",
+					}
+					local command_parts = { "fd" }
+					for _, arg in ipairs(fd_args) do
+						table.insert(command_parts, vim.fn.shellescape(arg))
+					end
+					local force_commands = {}
+					for _, pattern in ipairs(force_patterns) do
+						-- fd's --glob matches basenames, so make the relative directory
+						-- the search root (e.g. intraceadx/* -> fd ... intraceadx).
+						local directory, basename = pattern:match("^(.*)/([^/]*)$")
+						directory = directory or "."
+						basename = basename or pattern
+						table.insert(
+							force_commands,
+							table.concat(command_parts, " ")
+								.. " --no-ignore-vcs --glob "
+								.. vim.fn.shellescape(basename)
+								.. " "
+								.. vim.fn.shellescape(directory)
+						)
+					end
 					find_opts.find_command = {
-						"fd",
-						"--type",
-						"f",
-						"--hidden",
-						"--exclude",
-						".git",
-						"--exclude",
-						"node_modules",
-						"--exclude",
-						".venv",
-						"--exclude",
-						"venv",
-						"--exclude",
-						"__pycache__",
+						"sh", "-c",
+						"(" .. table.concat(command_parts, " ") .. "; "
+							.. table.concat(force_commands, "; ") .. ") | sort -u",
 					}
 				end
-				
+
 				-- Use Telescope's built-in find_files which handles streaming efficiently
 				-- It properly formats entries so they don't appear greyed out
 				require("telescope.builtin").find_files(vim.tbl_extend("keep", find_opts, opts))

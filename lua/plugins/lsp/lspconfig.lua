@@ -3,6 +3,17 @@ return {
     "williamboman/mason.nvim",
     config = function()
       require("mason").setup()
+
+      -- Non-LSP/DAP tools that Mason can install for language modules.
+      local ok, registry = pcall(require, "mason-registry")
+      if ok then
+        for _, tool in ipairs({ "csharp-language-server", "csharpier" }) do
+          local package_ok, package = pcall(registry.get_package, tool)
+          if package_ok and not package:is_installed() then
+            package:install()
+          end
+        end
+      end
     end,
   },
 
@@ -19,7 +30,10 @@ return {
           "jsonls",
           "terraformls",
           "tinymist",
-          "gopls"
+          "gopls",
+          "zls",
+          "csharp_ls",
+          "marksman",
         },
         automatic_installation = true,
       })
@@ -35,12 +49,11 @@ return {
     config = function()
       require("mason-nvim-dap").setup({
         ensure_installed = {
-          "node2",
-          "chrome",
           "js-debug-adapter",
           "debugpy",
+          "netcoredbg",
         },
-        automatic_installation = true,
+        automatic_installation = false,
       })
     end,
   },
@@ -68,6 +81,12 @@ return {
         end
       end
 
+      -- The nvim-lspconfig built-in stylua server runs `stylua --lsp`, but the
+      -- formatter-only Stylua package installed by Mason does not support that
+      -- mode. Keep Stylua as a Conform formatter only.
+      vim.lsp.config('stylua', { autostart = false, filetypes = {} })
+      vim.lsp.enable('stylua', false)
+
       -- Setup language-specific LSP servers from language modules
       require('languages.python').setup_lsp(capabilities, on_attach)
       require('languages.lua').setup_lsp(capabilities, on_attach)
@@ -75,6 +94,10 @@ return {
       require('languages.typst').setup_lsp(capabilities, on_attach)
       require('languages.json-yaml').setup_lsp(capabilities, on_attach)
       require('languages.go').setup_lsp(capabilities, on_attach)
+      require('languages.zig').setup_lsp(capabilities, on_attach)
+      require('languages.swift').setup_lsp(capabilities, on_attach)
+      require('languages.csharp').setup_lsp(capabilities, on_attach)
+      require('languages.markdown').setup_lsp(capabilities, on_attach)
 
       -- Enable all configured LSP servers
       vim.lsp.enable({
@@ -85,7 +108,11 @@ return {
         'pyright',
         'yamlls',
         'jsonls',
-        'gopls'
+        'gopls',
+        'zls',
+        'sourcekit',
+        'csharp_ls',
+        'marksman',
       })
 
       -- Note: TypeScript LSP is handled by typescript-tools.nvim plugin

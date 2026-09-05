@@ -69,7 +69,7 @@ return {
       -- Smart behavior for braces: expand with proper indentation when pressing Enter after {
       -- This creates: {<CR><indent><CR><indent>} with cursor positioned inside
       npairs.add_rules({
-        Rule("{", "}", { "lua", "go", "rust", "javascript", "typescript", "python", "java", "c", "cpp" })
+        Rule("{", "}", { "lua", "go", "rust", "javascript", "typescript", "python", "java", "c", "cpp", "cs" })
           :with_pair(function(opts)
             -- Only apply to braces at end of line or followed by whitespace
             local line = opts.line
@@ -92,8 +92,8 @@ return {
 
       -- Integration with blink.cmp (completion menu)
       -- This ensures autopairs works correctly when selecting from completion menu
-      local blink_cmp = require("blink.cmp")
-      if blink_cmp then
+      local ok_blink, blink_cmp = pcall(require, "blink.cmp")
+      if ok_blink and blink_cmp and blink_cmp.event then
         blink_cmp.event:on("confirm_done", function()
           npairs.check_break_line_char()
         end)
@@ -101,9 +101,9 @@ return {
 
       -- Auto-expand braces when {} is created (automatic expansion on typing {)
       -- This watches for when autopairs creates {} and expands it automatically
-      local expand_braces_ft = { "lua", "go", "rust", "javascript", "typescript", "python", "java", "c", "cpp" }
+      local expand_braces_ft = { "lua", "go", "rust", "javascript", "typescript", "python", "java", "c", "cpp", "cs" }
       local expand_timer = nil
-      
+
       vim.api.nvim_create_autocmd("TextChangedI", {
         pattern = "*",
         callback = function()

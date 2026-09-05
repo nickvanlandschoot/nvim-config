@@ -1,6 +1,14 @@
 local config = require("pi_core.config")
 local util = require("pi_core.util")
 
+local mutation_tools = {
+  edit = true,
+  write = true,
+  bash = true,
+  delete = true,
+  remove = true,
+}
+
 local M = {
   bufnr = nil,
   winid = nil,
@@ -156,7 +164,7 @@ local function scan_session_file(fire_callbacks)
       elseif msg.role == "assistant" then
         table.insert(assistants, entry.id)
         for _, part in ipairs(msg.content or {}) do
-          if type(part) == "table" and part.type == "toolCall" and (part.name == "edit" or part.name == "write") and part.id then
+          if type(part) == "table" and part.type == "toolCall" and mutation_tools[part.name] and part.id then
             local call = {
               id = part.id,
               toolName = part.name,
@@ -166,7 +174,7 @@ local function scan_session_file(fire_callbacks)
             table.insert(tool_calls, call)
           end
         end
-      elseif msg.role == "toolResult" and (msg.toolName == "edit" or msg.toolName == "write") then
+      elseif msg.role == "toolResult" and mutation_tools[msg.toolName] then
         local call = tool_call_by_id[msg.toolCallId] or {}
         table.insert(edit_results, {
           id = entry.id,

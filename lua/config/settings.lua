@@ -9,6 +9,16 @@ vim.opt.relativenumber = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 12
 
+-- Wrapping options are applied only to normal editing windows in autocmds.lua.
+-- Keeping them out of the global defaults prevents one-line prompts, pickers,
+-- and floating inputs from inheriting display offsets intended for file buffers.
+
+-- Clipboard
+-- Use the real system clipboard for yanks/pastes. This avoids copying terminal
+-- escape sequences, bracketed-paste markers, line numbers, or wrapped screen text
+-- when moving code out of/into Neovim inside tmux.
+vim.opt.clipboard = "unnamedplus"
+
 -- Indentation
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2

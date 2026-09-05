@@ -40,14 +40,38 @@ return {
       },
     },
 
-    -- Input enhancements (needed by opencode.nvim)
+    -- Input enhancements (needed by opencode.nvim). Keep every input-specific
+    -- viewport option explicit: Snacks opens this window with `noautocmd`, so
+    -- it must not inherit file-buffer wrapping or scroll offsets.
     input = {
       enabled = true,
+      win = {
+        wo = {
+          wrap = false,
+          linebreak = false,
+          breakindent = false,
+          showbreak = "",
+          scrolloff = 0,
+          sidescrolloff = 0,
+        },
+      },
     },
 
     -- Picker enhancements (needed by opencode.nvim)
     picker = {
       enabled = true,
+      win = {
+        input = {
+          wo = {
+            wrap = false,
+            linebreak = false,
+            breakindent = false,
+            showbreak = "",
+            scrolloff = 0,
+            sidescrolloff = 0,
+          },
+        },
+      },
     },
 
     -- Disable unused features

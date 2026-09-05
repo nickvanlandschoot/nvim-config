@@ -107,6 +107,164 @@ vim.keymap.set("n", "gr", function()
 		safe_lsp_operation(vim.lsp.buf.references)()
 	end
 end, vim.tbl_extend("force", opts, { desc = "Go to references (Telescope)" }))
+
+local function open_markdown_link_under_cursor(as_source)
+	local line = vim.api.nvim_get_current_line()
+	local cursor_col = vim.api.nvim_win_get_cursor(0)[2] + 1
+	local search_from = 1
+	local destination
+
+	-- Treat the entire [label](destination) as clickable, not just the path.
+	while search_from <= #line do
+		local link_start, link_end, _, target = line:find("%[([^%]]-)%]%(([^%)]+)%)", search_from)
+		if not link_start then
+			break
+		end
+		if cursor_col >= link_start and cursor_col <= link_end then
+			destination = vim.trim(target)
+			break
+		end
+		search_from = link_end + 1
+	end
+
+	if not destination then
+		return false
+	end
+
+	-- Angle brackets permit spaces; otherwise ignore an optional Markdown title.
+	if destination:sub(1, 1) == "<" then
+		destination = destination:match("^<([^>]+)>")
+	else
+		destination = destination:match("^(%S+)")
+	end
+	if not destination or destination == "" then
+		return false
+	end
+
+	local path
+	if destination:match("^file://") then
+		local ok, filename = pcall(vim.uri_to_fname, destination)
+		if not ok then
+			vim.notify("Invalid file URI: " .. destination, vim.log.levels.WARN)
+			return true
+		end
+		path = filename
+	elseif destination:match("^[%a][%w+.-]*:") or destination:sub(1, 1) == "#" then
+		-- Leave web links and same-document anchors to the normal LSP action.
+		return false
+	else
+		path = destination:gsub("[?#].*$", "")
+		if vim.uri_decode then
+			path = vim.uri_decode(path)
+		end
+		path = vim.fn.expand(path)
+		if not vim.startswith(path, "/") then
+			local current_file = vim.api.nvim_buf_get_name(0)
+			local base = current_file ~= "" and vim.fs.dirname(current_file) or vim.fn.getcwd()
+			path = vim.fs.joinpath(base, path)
+		end
+	end
+
+	path = vim.fs.normalize(path)
+	if vim.fn.filereadable(path) == 0 and vim.fn.isdirectory(path) == 0 then
+		vim.notify("Markdown link does not exist: " .. path, vim.log.levels.WARN)
+		return true
+	end
+
+	local path_to_open = path
+	local temporary_render
+	if not as_source and path:lower():match("%.svg$") then
+		-- ImageMagick often fails on SVG CSS font fallback lists. librsvg handles
+		-- them correctly, so render a temporary PNG for image.nvim/Kitty.
+		if vim.fn.executable("rsvg-convert") == 0 then
+			vim.notify("Cannot preview SVG: rsvg-convert is not installed", vim.log.levels.ERROR)
+			return true
+		end
+		temporary_render = vim.fn.tempname() .. ".png"
+		local result = vim.system({ "rsvg-convert", "--output", temporary_render, path }, { text = true }):wait()
+		if result.code ~= 0 then
+			vim.notify("Could not render SVG: " .. vim.trim(result.stderr or ""), vim.log.levels.ERROR)
+			return true
+		end
+		path_to_open = temporary_render
+	end
+
+	if as_source then
+		-- A previously viewed image buffer contains only image.nvim's placeholder.
+		-- Wipe it first so :edit reads the real file from disk.
+		local existing_buf = vim.fn.bufnr(path)
+		if existing_buf ~= -1 and vim.bo[existing_buf].filetype == "image_nvim" then
+			local image_ok, image = pcall(require, "image")
+			if image_ok then
+				for _, rendered_image in ipairs(image.get_images({ buffer = existing_buf })) do
+					rendered_image:clear(true)
+				end
+			end
+			vim.api.nvim_buf_delete(existing_buf, { force = true })
+		end
+	end
+
+	local return_buf = vim.api.nvim_get_current_buf()
+	local command = (as_source and "noautocmd edit " or "edit ") .. vim.fn.fnameescape(path_to_open)
+	local ok, err = pcall(vim.cmd, command)
+	if not ok then
+		if temporary_render then
+			vim.fn.delete(temporary_render)
+		end
+		vim.notify("Could not open Markdown link: " .. tostring(err), vim.log.levels.ERROR)
+	elseif temporary_render then
+		vim.b.image_return_buffer = return_buf
+		vim.api.nvim_create_autocmd("BufWipeout", {
+			buffer = vim.api.nvim_get_current_buf(),
+			once = true,
+			callback = function()
+				vim.fn.delete(temporary_render)
+			end,
+			desc = "Remove temporary rendered SVG preview",
+		})
+	elseif as_source then
+		-- `noautocmd` bypasses image.nvim's hijack so the underlying file remains visible.
+		local filetype = vim.filetype.match({ filename = path, buf = 0 })
+		if filetype then
+			vim.bo.filetype = filetype
+		end
+	else
+		vim.b.image_return_buffer = return_buf
+	end
+	return true
+end
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "markdown", "md" },
+	callback = function(args)
+		vim.keymap.set(
+			"n",
+			"gd",
+			function()
+				if not open_markdown_link_under_cursor() then
+					safe_lsp_operation(vim.lsp.buf.definition)()
+				end
+			end,
+			vim.tbl_extend("force", opts, { buffer = args.buf, desc = "Markdown: open link or go to definition" })
+		)
+		vim.keymap.set(
+			"n",
+			"gD",
+			function()
+				if not open_markdown_link_under_cursor(true) then
+					safe_lsp_operation(vim.lsp.buf.declaration)()
+				end
+			end,
+			vim.tbl_extend("force", opts, { buffer = args.buf, desc = "Markdown: open linked file source" })
+		)
+		vim.keymap.set(
+			"n",
+			"gr",
+			safe_lsp_operation(vim.lsp.buf.references),
+			vim.tbl_extend("force", opts, { buffer = args.buf, desc = "Markdown: find references" })
+		)
+	end,
+})
 -- Note: gi was mapped to hover, but K is the standard key for hover
 -- Removed gi mapping to avoid confusion - use K instead
 vim.keymap.set(
@@ -240,7 +398,7 @@ vim.keymap.set(
 vim.keymap.set(
 	"n",
 	"<leader>gs",
-	"<cmd>Telescope git_status<cr>",
+	"<cmd>TelescopeGitStatus<cr>",
 	vim.tbl_extend("force", opts, { desc = "Git status" })
 )
 vim.keymap.set(

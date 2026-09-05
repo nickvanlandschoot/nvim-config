@@ -47,6 +47,8 @@ return {
             "css",
             "json",
             "yaml",
+            "swift",
+            "c_sharp",
           },
         })
       end

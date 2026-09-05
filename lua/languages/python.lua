@@ -67,6 +67,30 @@ local function detect_python_interpreter()
 	return nil -- Let Pyright use its default detection
 end
 
+local function has_mypy_local_config(start_dir)
+	local dir = start_dir or vim.fn.expand("%:p:h")
+	return vim.fn.findfile("mypy.local.ini", dir .. ";") ~= ""
+end
+
+local function pyright_python_settings(python_interpreter, start_dir)
+	local settings = {
+		python = {
+			pythonPath = python_interpreter,
+		},
+	}
+
+	-- In Django projects where a local mypy config exists, mypy+django-stubs is
+	-- the authoritative type checker. Keep Pyright for navigation/completion but
+	-- disable its type checker to avoid duplicate Django ORM false positives.
+	if has_mypy_local_config(start_dir) then
+		settings.python.analysis = {
+			typeCheckingMode = "off",
+		}
+	end
+
+	return settings
+end
+
 -- Setup Python LSP servers
 function M.setup_lsp(capabilities, on_attach)
 	-- Ruff LSP configuration (linter/formatter)
@@ -189,12 +213,10 @@ function M.setup_lsp(capabilities, on_attach)
 			-- Let pyrightconfig.json handle base settings, only update interpreter dynamically
 			local python_interpreter = detect_python_interpreter()
 			if python_interpreter then
-				local settings = {
-					python = {
-						pythonPath = python_interpreter,
-					},
-				}
-				-- Only update the Python path, let pyrightconfig.json handle the rest
+				local buf_path = vim.api.nvim_buf_get_name(bufnr)
+				local start_dir = buf_path ~= "" and vim.fn.fnamemodify(buf_path, ":p:h") or vim.fn.getcwd()
+				local settings = pyright_python_settings(python_interpreter, start_dir)
+				-- Only update local Python settings; project config still owns everything else.
 				client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
 				client.notify("workspace/didChangeConfiguration", { settings = settings })
 			end
@@ -240,11 +262,9 @@ function M.setup_lsp(capabilities, on_attach)
 			if #clients > 0 then
 				local python_interpreter = detect_python_interpreter()
 				if python_interpreter then
-					local settings = {
-						python = {
-							pythonPath = python_interpreter,
-						},
-					}
+					local buf_path = vim.api.nvim_buf_get_name(ev.buf)
+					local start_dir = buf_path ~= "" and vim.fn.fnamemodify(buf_path, ":p:h") or vim.fn.getcwd()
+					local settings = pyright_python_settings(python_interpreter, start_dir)
 					for _, client in ipairs(clients) do
 						client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, settings)
 						client.notify("workspace/didChangeConfiguration", { settings = settings })
@@ -334,9 +354,12 @@ function M.get_formatters()
 	}
 end
 
--- Ruff linting is handled by the Ruff LSP server; no nvim-lint linters needed.
+-- Ruff linting is handled by the Ruff LSP server. Mypy is enabled only in
+-- projects that opt in with a local-only mypy.local.ini file.
 function M.get_linters()
-	return {}
+	return {
+		python = { "mypy_local" },
+	}
 end
 
 return M

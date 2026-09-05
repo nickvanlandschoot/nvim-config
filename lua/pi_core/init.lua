@@ -86,6 +86,12 @@ local function capture_tool_preimage(event)
     return
   end
   local args = event.arguments or {}
+  if event.toolName == "bash" then
+    M.state.chat_tool_preimages[event.id] = {
+      snapshot = diff.capture_project_snapshot(util.cwd()),
+    }
+    return
+  end
   if not args.path or args.path == "" then
     return
   end
@@ -102,12 +108,21 @@ local function queue_chat_review(event, reason)
   if not event then
     return 0
   end
-  local preimage = event.toolCallId and M.state.chat_tool_preimages[event.toolCallId] or nil
-  if preimage then
-    event = vim.tbl_extend("force", event, preimage)
-    M.state.chat_tool_preimages[event.toolCallId] = nil
+  local added = 0
+  if event.toolName == "bash" then
+    local preimage = event.toolCallId and M.state.chat_tool_preimages[event.toolCallId] or nil
+    if preimage then
+      M.state.chat_tool_preimages[event.toolCallId] = nil
+    end
+    added = diff.enqueue_review((preimage and preimage.snapshot) or M.state.chat_snapshot)
+  else
+    local preimage = event.toolCallId and M.state.chat_tool_preimages[event.toolCallId] or nil
+    if preimage then
+      event = vim.tbl_extend("force", event, preimage)
+      M.state.chat_tool_preimages[event.toolCallId] = nil
+    end
+    added = diff.enqueue_tool_review(event, M.state.chat_snapshot)
   end
-  local added = diff.enqueue_tool_review(event, M.state.chat_snapshot)
   if added > 0 then
     util.notify("pi chat edits ready for review" .. (reason and (" (" .. reason .. ")") or ""), vim.log.levels.INFO)
   end
@@ -753,20 +768,41 @@ function M.setup(opts)
   command("PiDiffAccept", function()
     diff.accept_current()
     refresh_chat_snapshot_after_review()
-  end, { desc = "Accept current pi diff" })
+  end, { desc = "Accept current pi diff hunk" })
   command("PiInlineDiffAccept", function()
     diff.accept_current()
     refresh_chat_snapshot_after_review()
-  end, { desc = "Accept current pi inline diff" })
+  end, { desc = "Accept current pi inline diff hunk" })
 
   command("PiDiffDeny", function()
     diff.deny_current()
     refresh_chat_snapshot_after_review()
-  end, { desc = "Reject current pi diff" })
+  end, { desc = "Reject current pi diff hunk" })
   command("PiInlineDiffDeny", function()
     diff.deny_current()
     refresh_chat_snapshot_after_review()
-  end, { desc = "Reject current pi inline diff" })
+  end, { desc = "Reject current pi inline diff hunk" })
+
+  command("PiDiffNextHunk", function()
+    diff.next_hunk()
+  end, { desc = "Jump to next pi diff hunk" })
+  command("PiInlineDiffNextHunk", function()
+    diff.next_hunk()
+  end, { desc = "Jump to next pi inline diff hunk" })
+
+  command("PiDiffPrevHunk", function()
+    diff.prev_hunk()
+  end, { desc = "Jump to previous pi diff hunk" })
+  command("PiInlineDiffPrevHunk", function()
+    diff.prev_hunk()
+  end, { desc = "Jump to previous pi inline diff hunk" })
+
+  command("PiDiffFiles", function()
+    diff.toggle_files()
+  end, { desc = "Toggle pi diff changed-files badge" })
+  command("PiInlineDiffFiles", function()
+    diff.toggle_files()
+  end, { desc = "Toggle pi inline diff changed-files badge" })
 
   command("PiDiffCascadeDeny", function()
     terminal.interrupt()

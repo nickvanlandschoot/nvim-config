@@ -34,7 +34,7 @@ local defaults = {
   },
   diff = {
     enabled = true,
-    layout = "vertical",
+    layout = "inline",
     auto_open = true,
     max_scan_files = 2000,
     max_file_bytes = 1024 * 1024,
